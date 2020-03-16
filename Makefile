@@ -2,7 +2,7 @@
 # Copyright(c) 2019 Huawei Technologies Co., Ltd. 2019. All rights reserved.
 
 BUILD ?= /lib/modules/`uname -r`/build
-obj-m := prefetch_tunning.o
+obj-m := prefetch_tuning.o
 EXTRA_CFLAGS += -Wall -Werror
 
 .PHONY : all
