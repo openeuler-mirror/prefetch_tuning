@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0
+ // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright(c) 2019 Huawei Technologies Co., Ltd
  *
@@ -22,198 +22,125 @@
 #include <linux/slab.h>
 #include <linux/cpumask.h>
 #include <linux/miscdevice.h>
+#include "prefetch_tuning.h"
 
 #ifndef is_affinity_mask_valid
 #define is_affinity_mask_valid(val) 1
 #endif
 
-#ifdef CONFIG_ARCH_HISI
-typedef struct {
-	long cpuprefctrl_el1;
-	long adps_lld_ddr_el1;
-	long adpp_l1v_mop_el1;
-	long adps_lld_l3_el1;
-} cfg_t;
-#else
-typedef long cfg_t;
-#endif
-
-static cpumask_var_t mask_value;
-cfg_t __percpu *cur_cfg;
-cfg_t __percpu *old_cfg;
+static cpumask_var_t prefetch_cpumask_value;
+static cfg_t __percpu *cur_cfg;
+static cfg_t __percpu *old_cfg;
 static DEFINE_MUTEX(prefetch_mtx);
 
-#ifdef CONFIG_ARCH_HISI
-static cfg_t cfg[] = {
-	[0] = {.cpuprefctrl_el1 = 0x112f8127f,
-			.adps_lld_ddr_el1 = 0x6554a000,
-			.adpp_l1v_mop_el1 = 0x29154332a840,
-			.adps_lld_l3_el1 = 0x65965700},
-	[1] = {.cpuprefctrl_el1 = 0x112f81254,
-			.adps_lld_ddr_el1 = 0x6554a000,
-			.adpp_l1v_mop_el1 = 0x29154332a840,
-			.adps_lld_l3_el1 = 0x65965700},
-	[2] = {.cpuprefctrl_el1 = 0x112f81254,
-			.adps_lld_ddr_el1 = 0x4d34a200,
-			.adpp_l1v_mop_el1 = 0x29154332a840,
-			.adps_lld_l3_el1 = 0x65965700},
-	[3] = {.cpuprefctrl_el1 = 0xb52f81254,
-			.adps_lld_ddr_el1 = 0x6554a000,
-			.adpp_l1v_mop_el1 = 0x29154332a840,
-			.adps_lld_l3_el1 = 0x65965700},
-	[4] = {.cpuprefctrl_el1 = 0x112f81254,
-			.adps_lld_ddr_el1 = 0x6554a000,
-			.adpp_l1v_mop_el1 = 0x29080082a880,
-			.adps_lld_l3_el1 = 0x65965700},
-	[5] = {.cpuprefctrl_el1 = 0x3012f81254,
-			.adps_lld_ddr_el1 = 0x6554a000,
-			.adpp_l1v_mop_el1 = 0x29080082a880,
-			.adps_lld_l3_el1 = 0x65965700},
-	[6] = {.cpuprefctrl_el1 = 0x3012f81254,
-			.adps_lld_ddr_el1 = 0x4d142000,
-			.adpp_l1v_mop_el1 = 0x29080082a880,
-			.adps_lld_l3_el1 = 0x65965700},
-	[7] = {.cpuprefctrl_el1 = 0x3012f81254,
-			.adps_lld_ddr_el1 = 0x4d142000,
-			.adpp_l1v_mop_el1 = 0x29080082a880,
-			.adps_lld_l3_el1 = 0x4d145100},
-	[8] = {.cpuprefctrl_el1 = 0x4112f81254,
-			.adps_lld_ddr_el1 = 0x6554a000,
-			.adpp_l1v_mop_el1 = 0x29154332a840,
-			.adps_lld_l3_el1 = 0x65965700},
-	[9] = {.cpuprefctrl_el1 = 0x112f81260,
-			.adps_lld_ddr_el1 = 0x6554a000,
-			.adpp_l1v_mop_el1 = 0x29154332a840,
-			.adps_lld_l3_el1 = 0x65965700},
-	[10] = {.cpuprefctrl_el1 = 0x112f81260,
-			.adps_lld_ddr_el1 = 0x6554a000,
-			.adpp_l1v_mop_el1 = 0x29154332a840,
-			.adps_lld_l3_el1 = 0x658e5700},
-	[11] = {.cpuprefctrl_el1 = 0x3412f81254,
-			.adps_lld_ddr_el1 = 0x4d142000,
-			.adpp_l1v_mop_el1 = 0x29080082a880,
-			.adps_lld_l3_el1 = 0x65965700},
-	[12] = {.cpuprefctrl_el1 = 0x3412F81260,
-			.adps_lld_ddr_el1 = 0x4d12000,
-			.adpp_l1v_mop_el1 = 0x29080082a880,
-			.adps_lld_l3_el1 = 0x65965700},
-	[13] = {.cpuprefctrl_el1 = 0x112f81240,
-			.adps_lld_ddr_el1 = 0x6554a000,
-			.adpp_l1v_mop_el1 = 0x29154332a840,
-			.adps_lld_l3_el1 = 0x65965700},
-	[14] = {.cpuprefctrl_el1 = 0x112f81240,
-			.adps_lld_ddr_el1 = 0x6554a000,
-			.adpp_l1v_mop_el1 = 0x69154332a840,
-			.adps_lld_l3_el1 = 0x65965700},
-	[15] = {.cpuprefctrl_el1 = 0x80110f81380,
-			.adps_lld_ddr_el1 = 0x6554a000,
-			.adpp_l1v_mop_el1 = 0x29154332a840,
-			.adps_lld_l3_el1 = 0x65965700},
+static ssize_t cache_store(struct device* dev,
+		struct device_attribute* attr, const char* buf, size_t count);
+static ssize_t cache_show(struct device* dev,
+		struct device_attribute* attr, char* buf);
+static ssize_t prefetch_store(struct device* dev,
+		struct device_attribute* attr, const char* buf, size_t count);
+static ssize_t prefetch_show(struct device* dev,
+		struct device_attribute* attr, char* buf);
+static ssize_t prefetch_mask_store(struct device* dev,
+		struct device_attribute* attr, const char* buf, size_t count);
+static ssize_t prefetch_mask_show(struct device* dev,
+				struct device_attribute* attr, char* buf);
+
+/* Device create */
+static DEVICE_ATTR(cache, S_IRUGO|S_IWUSR,
+        cache_show, cache_store);
+
+static DEVICE_ATTR(policy, S_IRUGO|S_IWUSR,
+		prefetch_show, prefetch_store);
+
+static DEVICE_ATTR(cpumask, S_IRUGO|S_IWUSR,
+		prefetch_mask_show, prefetch_mask_store);
+
+
+static struct attribute *prefetch_attrs[] = {
+    &dev_attr_policy.attr,
+    &dev_attr_cpumask.attr,
+    &dev_attr_cache.attr,
+    NULL,
 };
 
-static void set_prefetch(void* dummy)
+static const struct attribute_group prefetch_attr_group = {
+    .attrs = prefetch_attrs,
+};
+
+static const struct attribute_group *attr_groups[] = {
+    &prefetch_attr_group,
+    NULL,
+};
+
+static struct miscdevice misc = {
+	.minor = MISC_DYNAMIC_MINOR,
+	.name = "prefetch",
+	.groups = attr_groups,
+};
+
+/* 0--close, 1--open */
+static ssize_t cache_store(struct device* dev,
+		struct device_attribute* attr, const char* buf, size_t count)
 {
-    cfg_t cfg = *((cfg_t *)dummy);
+    ssize_t ret;
+    int value;
 
-    __asm__ __volatile__(
-	    "msr S3_1_c15_c6_4, %0 \n"
-	    :
-	    : "r"(cfg.cpuprefctrl_el1)
-	    :
-    );
+    ret = kstrtouint(buf, 0, &value);
+    if (ret || (value != 0 && value != 1)) {
+        pr_err("invalid input(0-close,1-open,other-invalid)!\n");
+        return count;
+    }
 
-    __asm__ __volatile__(
-	    "msr S3_1_c15_c7_1, %0 \n"
-	    :
-	    : "r"(cfg.adps_lld_ddr_el1)
-	    :
-    );
+    mutex_lock(&prefetch_mtx);
+    on_each_cpu_mask(prefetch_cpumask_value, cache_set, &value, 1);
+    mutex_unlock(&prefetch_mtx);
 
-    __asm__ __volatile__(
-	    "msr S3_1_c15_c6_5, %0 \n"
-	    :
-	    : "r"(cfg.adpp_l1v_mop_el1)
-	    :
-    );
-
-    __asm__ __volatile__(
-	    "msr S3_1_c15_c7_0, %0 \n"
-	    :
-	    : "r"(cfg.adps_lld_l3_el1)
-	    :
-    );
+    return count;
 }
 
-static void get_prefetch(void* dummy)
+static ssize_t cache_show(struct device* dev,
+		struct device_attribute* attr, char* buf)
 {
-    cfg_t *pcfg = this_cpu_ptr((cfg_t __percpu *)dummy);
-    cfg_t cfg;
+    int cpu;
+    int count = 0;
 
-    __asm__ __volatile__(
-	    "mrs %0, S3_1_c15_c6_4 \n"
-	    : "=r"(cfg.cpuprefctrl_el1)
-	    :
-	    :
-    );
-
-    __asm__ __volatile__(
-	    "mrs %0, S3_1_c15_c7_1 \n"
-	    : "=r"(cfg.adps_lld_ddr_el1)
-	    :
-	    :
-    );
-
-    __asm__ __volatile__(
-	    "mrs %0, S3_1_c15_c6_5 \n"
-	    : "=r"(cfg.adpp_l1v_mop_el1)
-	    :
-	    :
-    );
-
-    __asm__ __volatile__(
-	    "mrs %0, S3_1_c15_c7_0 \n"
-	    : "=r"(cfg.adps_lld_l3_el1)
-	    :
-	    :
-    );
-
-    *pcfg = cfg;
-}
-#else
-static cfg_t cfg[] = {};
-
-static void set_prefetch(void* dummy)
-{
+    int __percpu *cur = alloc_percpu(int);
+    if (!cur) {
+        pr_err("alloc_percpu fail\n");
+        return -ENOMEM;
+    }
+    mutex_lock(&prefetch_mtx);
+    on_each_cpu_mask(prefetch_cpumask_value, cache_get, cur, 1);
+    
+    for_each_cpu(cpu, prefetch_cpumask_value) {
+        int *ptr = per_cpu_ptr(cur, cpu);
+        count += scnprintf(buf + count, PAGE_SIZE, "cpu(%d): %s.\n",
+                    cpu, (ptr == NULL) ? "n/a" : ((*ptr == 0) ? "close" : "open"));
+    }
+    mutex_unlock(&prefetch_mtx);
+    free_percpu(cur);
+    return count;
 }
 
-static void get_prefetch(void* dummy)
-{
-}
-#endif
-
-static void reset_prefetch(void* dummy)
-{
-    cfg_t *pcfg = this_cpu_ptr((cfg_t __percpu *)dummy);
-	set_prefetch(pcfg);
-}
 
 static ssize_t prefetch_store(struct device* dev,
 		struct device_attribute* attr, const char* buf, size_t count)
 {
 	ssize_t ret;
-	int value;
-
-    ret = kstrtouint(buf, 0, &value);
+	int policy;
+pr_debug("hello\n");
+    ret = kstrtouint(buf, 0, &policy);
     if (ret) {
 		pr_err("invalid input\n");
 		return count;
 	}
 
 	mutex_lock(&prefetch_mtx);
-	if (value < ARRAY_SIZE(cfg)) {
-		on_each_cpu_mask(mask_value, set_prefetch, &cfg[value], 1);
+	if (policy < prefetch_policy_num()) {
+		on_each_cpu_mask(prefetch_cpumask_value, set_prefetch, &policy, 1);
 	} else {
-		pr_err("value %d is out of range\n", value);
+		pr_err("policy %d is out of range\n", policy);
 	}
 	mutex_unlock(&prefetch_mtx);
 
@@ -227,12 +154,11 @@ static ssize_t prefetch_show(struct device* dev,
 	int count = 0;
 
 	mutex_lock(&prefetch_mtx);
-	on_each_cpu_mask(mask_value, get_prefetch, cur_cfg, 1);
-
-	for_each_cpu(cpu, mask_value) {
-		for (policy = ARRAY_SIZE(cfg) - 1; policy >= 0; policy--) {
-			if (!memcmp(&cfg[policy], per_cpu_ptr(cur_cfg, cpu),
-				sizeof(cfg_t)))
+	on_each_cpu_mask(prefetch_cpumask_value, get_prefetch, cur_cfg, 1);
+	for_each_cpu(cpu, prefetch_cpumask_value) {
+        cfg_t *this_cfg = per_cpu_ptr(cur_cfg, cpu);
+		for (policy = prefetch_policy_num() - 1; policy >= 0; policy--) {
+			if (!memcmp(prefetch_policy(policy), this_cfg, sizeof(cfg_t)))
 				break;
 		}
 		count += scnprintf(buf + count, PAGE_SIZE, "cpu(%d): %d\n",
@@ -249,13 +175,13 @@ static ssize_t prefetch_mask_store(struct device* dev,
 	int ret;
 
 	mutex_lock(&prefetch_mtx);
-	ret = cpulist_parse(buf, mask_value);
+	ret = cpulist_parse(buf, prefetch_cpumask_value);
 	if (ret) {
 		pr_err("cpulist_parse error: %d\n", ret);
 		goto prefetch_mask_end;
 	}
 
-	if (!is_affinity_mask_valid(mask_value)) {
+	if (!is_affinity_mask_valid(prefetch_cpumask_value)) {
 		pr_err("mask value error\n");
 		goto prefetch_mask_end;
 	}
@@ -270,7 +196,7 @@ static ssize_t prefetch_mask_show(struct device* dev,
 {
 	ssize_t ret;
 	mutex_lock(&prefetch_mtx);
-	ret = cpumap_print_to_pagebuf(true, buf, mask_value);
+	ret = cpumap_print_to_pagebuf(true, buf, prefetch_cpumask_value);
 	mutex_unlock(&prefetch_mtx);
 	return ret;
 }
@@ -279,50 +205,24 @@ static ssize_t prefetch_mask_show(struct device* dev,
  * prefetch policy, can be 0~15:
  * 0: disable; 1~15: different thresholds for sms,amop algrithom;
  */
-static DEVICE_ATTR(policy, S_IRUGO|S_IWUSR,
-		prefetch_show, prefetch_store);
 
-/* assign the effective cpu, can be a list */
-static DEVICE_ATTR(cpumask, S_IRUGO|S_IWUSR,
-		prefetch_mask_show, prefetch_mask_store);
-
-static struct attribute *prefetch_attrs[] = {
-    &dev_attr_policy.attr,
-    &dev_attr_cpumask.attr,
-    NULL,
-};
-
-static const struct attribute_group prefetch_attr_group = {
-    .attrs = prefetch_attrs,
-};
-
-static const struct attribute_group *prefetch_attr_groups[] = {
-    &prefetch_attr_group,
-    NULL,
-};
-
-static struct miscdevice misc = {
-	.minor = MISC_DYNAMIC_MINOR,
-	.name = "prefetch",
-	.groups = prefetch_attr_groups,
-};
 
 static int __init prefetch_init(void)
 {
 	int ret;
 	int cpu;
-
+pr_err("prefetch init enter.\n");
 	/* mask: initial a mask */
-    if (!alloc_cpumask_var(&mask_value, GFP_KERNEL)) {
+    if (!alloc_cpumask_var(&prefetch_cpumask_value, GFP_KERNEL)) {
         ret = -ENOMEM;
         goto err_mask_alloc;
 	}
 
-	cpumask_clear(mask_value);
+	cpumask_clear(prefetch_cpumask_value);
 	for_each_online_cpu(cpu)
-		cpumask_set_cpu(cpu, mask_value);
+		cpumask_set_cpu(cpu, prefetch_cpumask_value);
 
-    if (!is_affinity_mask_valid(mask_value)) {
+    if (!is_affinity_mask_valid(prefetch_cpumask_value)) {
         pr_err("incalid affinity_mask\n");
         ret = -EINVAL;
         goto err_mask_init;
@@ -350,6 +250,7 @@ static int __init prefetch_init(void)
         pr_err("misc register fail\n");
         goto err_misc_reg;
     }
+    pr_err("prefetch misc register.\n");
 
 	return 0;
 
@@ -358,7 +259,7 @@ err_misc_reg:
 err_cfg_alloc:
 	free_percpu(cur_cfg);
 err_mask_init:
-	free_cpumask_var(mask_value);
+	free_cpumask_var(prefetch_cpumask_value);
 err_mask_alloc:
 	return ret;
 }
@@ -369,7 +270,7 @@ static void __exit prefetch_exit(void)
 	on_each_cpu(reset_prefetch, old_cfg, 1);
 	free_percpu(old_cfg);
 	free_percpu(cur_cfg);
-	free_cpumask_var(mask_value);
+	free_cpumask_var(prefetch_cpumask_value);
 }
 
 module_init(prefetch_init);
