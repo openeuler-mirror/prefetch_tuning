@@ -8,8 +8,8 @@ EXTRA_CFLAGS += -Wall -Werror -I./
 
 .PHONY : all
 all:
-        $(MAKE) -C $(BUILD) M=$(PWD) modules
+	$(MAKE) -C $(BUILD) M=$(PWD) modules
 
 .PHONY : clean
 clean:
-        $(MAKE) -C $(BUILD) M=$(PWD) clean
+	$(MAKE) -C $(BUILD) M=$(PWD) clean
