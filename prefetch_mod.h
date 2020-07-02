@@ -2,7 +2,7 @@
 #define __PREFETCH_TUNING__
 
 enum {
-    DISABLE=0,
+    DISABLE = 0,
     ENABLE
 };
 
