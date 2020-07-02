@@ -1,5 +1,4 @@
 #!/bin/bash
-
 GREP=cpu\(1\)
 
 echo "Policy set test, (exp:0~15):"
