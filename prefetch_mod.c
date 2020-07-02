@@ -84,7 +84,7 @@ static ssize_t cache_store(struct device* dev,
 		struct device_attribute* attr, const char* buf, size_t count)
 {
     ssize_t ret;
-    int value;
+    int value = -1;
 
     ret = kstrtouint(buf, 0, &value);
     if (ret || (value != 0 && value != 1)) {
@@ -128,8 +128,8 @@ static ssize_t prefetch_store(struct device* dev,
 		struct device_attribute* attr, const char* buf, size_t count)
 {
 	ssize_t ret;
-	int policy;
-pr_debug("hello\n");
+	int policy = -1;
+    
     ret = kstrtouint(buf, 0, &policy);
     if (ret) {
 		pr_err("invalid input\n");
@@ -211,7 +211,6 @@ static int __init prefetch_init(void)
 {
 	int ret;
 	int cpu;
-pr_err("prefetch init enter.\n");
 	/* mask: initial a mask */
     if (!alloc_cpumask_var(&prefetch_cpumask_value, GFP_KERNEL)) {
         ret = -ENOMEM;
@@ -250,7 +249,6 @@ pr_err("prefetch init enter.\n");
         pr_err("misc register fail\n");
         goto err_misc_reg;
     }
-    pr_err("prefetch misc register.\n");
 
 	return 0;
 

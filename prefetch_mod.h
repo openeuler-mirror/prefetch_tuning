@@ -1,17 +1,20 @@
 #ifndef __PREFETCH_TUNING__
 #define __PREFETCH_TUNING__
 
-#define ENABLE 1
-#define DISABLE 0
+enum {
+    DISABLE=0,
+    ENABLE
+};
+
 #define CACHE_READUNIQ_OFFSET 40
 #define CACHE_READUNIQ_CTRL (1L << CACHE_READUNIQ_OFFSET)
 
 #ifdef CONFIG_ARCH_HISI
 typedef struct {
-	long cpuprefctrl_el1;
-	long adps_lld_ddr_el1;
-	long adpp_l1v_mop_el1;
-	long adps_lld_l3_el1;
+    long cpuprefctrl_el1;
+    long adps_lld_ddr_el1;
+    long adpp_l1v_mop_el1;
+    long adps_lld_l3_el1;
 } cfg_t;
 #else
 typedef long cfg_t;
