@@ -22,8 +22,8 @@ typedef long cfg_t;
 
 extern void set_prefetch(void* dummy);
 extern void get_prefetch(void* dummy);
-extern void cache_set(void *dummy);
-extern void cache_get(void *dummy);
+extern void read_unique_set(void *dummy);
+extern void read_unique_get(void *dummy);
 extern void reset_prefetch(void* dummy);
 
 extern int prefetch_policy_num(void);

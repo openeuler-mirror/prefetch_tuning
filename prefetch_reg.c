@@ -107,7 +107,7 @@ void get_prefetch(void* dummy)
     return;
 }
 
-void cache_set(void *dummy)
+void read_unique_set(void *dummy)
 {
     int *value = (int *)dummy;
     if (*value == ENABLE)
@@ -118,7 +118,7 @@ void cache_set(void *dummy)
     return;
 }
 
-void cache_get(void *dummy)
+void read_unique_get(void *dummy)
 {
     int *value = this_cpu_ptr((int __percpu *)dummy);
     u64 reg_value = read_sysreg(S3_1_c15_c6_4);
@@ -139,12 +139,12 @@ void get_prefetch(void* dummy)
     return;
 }
 
-void cache_set(void *dummy)
+void read_unique_set(void *dummy)
 {
     return;
 }
 
-void cache_get(void *dummy)
+void read_unique_get(void *dummy)
 {
     return;
 }

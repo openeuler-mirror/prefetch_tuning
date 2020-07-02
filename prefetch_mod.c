@@ -33,9 +33,9 @@ static cfg_t __percpu *cur_cfg;
 static cfg_t __percpu *old_cfg;
 static DEFINE_MUTEX(prefetch_mtx);
 
-static ssize_t cache_store(struct device* dev,
+static ssize_t read_unique_store(struct device* dev,
 		struct device_attribute* attr, const char* buf, size_t count);
-static ssize_t cache_show(struct device* dev,
+static ssize_t read_unique_show(struct device* dev,
 		struct device_attribute* attr, char* buf);
 static ssize_t prefetch_store(struct device* dev,
 		struct device_attribute* attr, const char* buf, size_t count);
@@ -47,8 +47,8 @@ static ssize_t prefetch_mask_show(struct device* dev,
 				struct device_attribute* attr, char* buf);
 
 /* Device create */
-static DEVICE_ATTR(cache, S_IRUGO|S_IWUSR,
-        cache_show, cache_store);
+static DEVICE_ATTR(read_unique, S_IRUGO|S_IWUSR,
+        read_unique_show, read_unique_store);
 
 static DEVICE_ATTR(policy, S_IRUGO|S_IWUSR,
 		prefetch_show, prefetch_store);
@@ -60,7 +60,7 @@ static DEVICE_ATTR(cpumask, S_IRUGO|S_IWUSR,
 static struct attribute *prefetch_attrs[] = {
     &dev_attr_policy.attr,
     &dev_attr_cpumask.attr,
-    &dev_attr_cache.attr,
+    &dev_attr_read_unique.attr,
     NULL,
 };
 
@@ -80,7 +80,7 @@ static struct miscdevice misc = {
 };
 
 /* 0--close, 1--open */
-static ssize_t cache_store(struct device* dev,
+static ssize_t read_unique_store(struct device* dev,
 		struct device_attribute* attr, const char* buf, size_t count)
 {
     ssize_t ret;
@@ -93,13 +93,13 @@ static ssize_t cache_store(struct device* dev,
     }
 
     mutex_lock(&prefetch_mtx);
-    on_each_cpu_mask(prefetch_cpumask_value, cache_set, &value, 1);
+    on_each_cpu_mask(prefetch_cpumask_value, read_unique_set, &value, 1);
     mutex_unlock(&prefetch_mtx);
 
     return count;
 }
 
-static ssize_t cache_show(struct device* dev,
+static ssize_t read_unique_show(struct device* dev,
 		struct device_attribute* attr, char* buf)
 {
     int cpu;
@@ -111,7 +111,7 @@ static ssize_t cache_show(struct device* dev,
         return -ENOMEM;
     }
     mutex_lock(&prefetch_mtx);
-    on_each_cpu_mask(prefetch_cpumask_value, cache_get, cur, 1);
+    on_each_cpu_mask(prefetch_cpumask_value, read_unique_get, cur, 1);
     
     for_each_cpu(cpu, prefetch_cpumask_value) {
         int *ptr = per_cpu_ptr(cur, cpu);
