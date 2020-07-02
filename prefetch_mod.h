@@ -6,8 +6,7 @@ enum {
     ENABLE
 };
 
-#define CACHE_READUNIQ_OFFSET 40
-#define CACHE_READUNIQ_CTRL (1L << CACHE_READUNIQ_OFFSET)
+#define CACHE_READUNIQ_CTRL (1L << 40)
 
 #ifdef CONFIG_ARCH_HISI
 typedef struct {

@@ -83,7 +83,7 @@ static struct miscdevice misc = {
 static ssize_t read_unique_store(struct device* dev,
 		struct device_attribute* attr, const char* buf, size_t count)
 {
-    ssize_t ret;
+    ssize_t ret = -1;
     int value = -1;
 
     ret = kstrtouint(buf, 0, &value);
@@ -102,7 +102,7 @@ static ssize_t read_unique_store(struct device* dev,
 static ssize_t read_unique_show(struct device* dev,
 		struct device_attribute* attr, char* buf)
 {
-    int cpu;
+    int cpu = -1;
     int count = 0;
 
     int __percpu *cur = alloc_percpu(int);
@@ -127,7 +127,7 @@ static ssize_t read_unique_show(struct device* dev,
 static ssize_t prefetch_store(struct device* dev,
 		struct device_attribute* attr, const char* buf, size_t count)
 {
-	ssize_t ret;
+	ssize_t ret = -1;
 	int policy = -1;
     
     ret = kstrtouint(buf, 0, &policy);
@@ -150,7 +150,8 @@ static ssize_t prefetch_store(struct device* dev,
 static ssize_t prefetch_show(struct device* dev,
 		struct device_attribute* attr, char* buf)
 {
-	int cpu, policy;
+	int cpu = -1;
+    int policy = -1;
 	int count = 0;
 
 	mutex_lock(&prefetch_mtx);
@@ -172,7 +173,7 @@ static ssize_t prefetch_show(struct device* dev,
 static ssize_t prefetch_mask_store(struct device* dev,
 		struct device_attribute* attr, const char* buf, size_t count)
 {
-	int ret;
+	int ret = -1;
 
 	mutex_lock(&prefetch_mtx);
 	ret = cpulist_parse(buf, prefetch_cpumask_value);
@@ -194,7 +195,7 @@ prefetch_mask_end:
 static ssize_t prefetch_mask_show(struct device* dev,
 				struct device_attribute* attr, char* buf)
 {
-	ssize_t ret;
+	ssize_t ret = -1;
 	mutex_lock(&prefetch_mtx);
 	ret = cpumap_print_to_pagebuf(true, buf, prefetch_cpumask_value);
 	mutex_unlock(&prefetch_mtx);
@@ -209,8 +210,8 @@ static ssize_t prefetch_mask_show(struct device* dev,
 
 static int __init prefetch_init(void)
 {
-	int ret;
-	int cpu;
+	int ret = -1;
+	int cpu = -1;
 	/* mask: initial a mask */
     if (!alloc_cpumask_var(&prefetch_cpumask_value, GFP_KERNEL)) {
         ret = -ENOMEM;

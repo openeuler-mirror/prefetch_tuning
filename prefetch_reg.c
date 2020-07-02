@@ -118,11 +118,12 @@ void read_unique_set(void *dummy)
     return;
 }
 
+static const u64 readUniqueOffset = 40;
 void read_unique_get(void *dummy)
 {
     int *value = this_cpu_ptr((int __percpu *)dummy);
     u64 reg_value = read_sysreg(S3_1_c15_c6_4);
-    *value = (reg_value >> CACHE_READUNIQ_OFFSET) & 0x1;
+    *value = (reg_value >> readUniqueOffset) & 0x1;
     return;
 }
 #else
