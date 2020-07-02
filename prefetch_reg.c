@@ -7,7 +7,7 @@
 #include <linux/slab.h>
 #include <linux/cpumask.h>
 #include <linux/miscdevice.h>
-#include "prefetch_tuning.h"
+#include "prefetch_mod.h"
 
 #ifdef CONFIG_ARCH_HISI
 #define PREFETCH_POLICY_MAX 15

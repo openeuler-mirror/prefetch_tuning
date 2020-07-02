@@ -22,7 +22,7 @@
 #include <linux/slab.h>
 #include <linux/cpumask.h>
 #include <linux/miscdevice.h>
-#include "prefetch_tuning.h"
+#include "prefetch_mod.h"
 
 #ifndef is_affinity_mask_valid
 #define is_affinity_mask_valid(val) 1
