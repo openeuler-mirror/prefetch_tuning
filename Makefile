@@ -3,7 +3,8 @@
 
 BUILD ?= /lib/modules/`uname -r`/build
 obj-m := prefetch_tuning.o
-EXTRA_CFLAGS += -Wall -Werror
+prefetch_tuning-objs := prefetch_reg.o prefetch_mod.o
+EXTRA_CFLAGS += -Wall -Werror -I./
 
 .PHONY : all
 all:
