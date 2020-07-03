@@ -88,7 +88,7 @@ static ssize_t read_unique_store(struct device* dev,
 
     ret = kstrtouint(buf, 0, &value);
     if (ret || (value != 0 && value != 1)) {
-        pr_err("invalid input(0-close,1-open,other-invalid)!\n");
+        pr_err("invalid input!\n");
         return count;
     }
 
@@ -115,8 +115,8 @@ static ssize_t read_unique_show(struct device* dev,
     
     for_each_cpu(cpu, prefetch_cpumask_value) {
         int *ptr = per_cpu_ptr(cur, cpu);
-        count += scnprintf(buf + count, PAGE_SIZE, "cpu(%d): %s.\n",
-                    cpu, (ptr == NULL) ? "n/a" : ((*ptr == 0) ? "close" : "open"));
+        count += scnprintf(buf + count, PAGE_SIZE, "cpu(%d): %d.\n",
+                    cpu, (ptr == NULL) ? -1 : *ptr);
     }
     mutex_unlock(&prefetch_mtx);
     free_percpu(cur);
