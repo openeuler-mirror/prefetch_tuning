@@ -115,8 +115,8 @@ static ssize_t read_unique_show(struct device* dev,
     
     for_each_cpu(cpu, prefetch_cpumask_value) {
         int *ptr = per_cpu_ptr(cur, cpu);
-        count += scnprintf(buf + count, PAGE_SIZE, "cpu(%d): %s.\n",
-                    cpu, (ptr == NULL) ? "n/a" : *ptr);
+        count += scnprintf(buf + count, PAGE_SIZE, "cpu(%d): %d.\n",
+                    cpu, (ptr == NULL) ? -1 : *ptr);
     }
     mutex_unlock(&prefetch_mtx);
     free_percpu(cur);
