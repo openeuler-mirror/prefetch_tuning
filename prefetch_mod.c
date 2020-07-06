@@ -138,7 +138,7 @@ static ssize_t prefetch_store(struct device* dev,
 
 	mutex_lock(&prefetch_mtx);
 	if (policy < prefetch_policy_num()) {
-		on_each_cpu_mask(prefetch_cpumask_value, set_prefetch, &policy, 1);
+		on_each_cpu_mask(prefetch_cpumask_value, set_prefetch, prefetch_policy(policy), 1);
 	} else {
 		pr_err("policy %d is out of range\n", policy);
 	}

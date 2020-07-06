@@ -96,12 +96,10 @@ static cfg_t prefetch_cfg[] = {
 
 void set_prefetch(void* dummy)
 {
-    cfg_t *cfg = NULL;
-    int policy = *(int *)dummy;
+    cfg_t *cfg = (cfg_t *)dummy;
     unsigned long read_uniq = read_sysreg(S3_1_c15_c6_4);
-    if (policy < 0 || policy > PREFETCH_POLICY_MAX)
+    if (cfg == NULL)
         return;
-    cfg = &prefetch_cfg[policy];
     read_uniq &= CACHE_READUNIQ_CTRL;
     write_sysreg(cfg->cpuprefctrl_el1 | read_uniq, S3_1_c15_c6_4);
     write_sysreg(cfg->adps_lld_ddr_el1, S3_1_c15_c7_1);
