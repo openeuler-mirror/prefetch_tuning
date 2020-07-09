@@ -1,0 +1,12 @@
+This module is based on Kunpeng chip and provides some performance-sensitive chip parameters for adjustment.
+
+Build:
+    make clean && make
+    insmod pretetch_tuning.ko
+
+There will be some files under /sys/class/misc/prefetch/
+    policy: Prefetch policy, can be set to 0~15.
+    read_unique: Whether to allow cross-numa access to cache. 0--allow 1--forbid.
+
+Configuration example:
+    echo 1 > /sys/class/misc/prefetch/read_unique

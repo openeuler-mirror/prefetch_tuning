@@ -23,6 +23,7 @@
 #include <linux/slab.h>
 #include <linux/cpumask.h>
 #include <linux/miscdevice.h>
+#include <asm/io.h>
 #include "prefetch_mod.h"
 
 #ifdef CONFIG_ARCH_HISI
@@ -140,6 +141,82 @@ void read_unique_get(void *dummy)
     *value = (reg_value >> readUniqueOffset) & 0x1;
     return;
 }
+
+static unsigned long skt_offset = 0x200000000000ULL;
+static unsigned nr_skt = 2, totem_num = 1;
+void initial_cpu_info(void)
+{
+	u32 midr = read_cpuid_id();
+	unsigned cvariant = 0x1, core_per_skt = 48;
+	int max_cpu = nr_cpu_ids;
+	cvariant = MIDR_VARIANT(midr);
+	if (cvariant == 0x1)
+		skt_offset = 0x200000000000ULL;
+	else
+		skt_offset = 0x400000000000ULL;
+	if (max_cpu == 24 || max_cpu == 32 || max_cpu == 8 || max_cpu == 12) {
+        nr_skt = 1;
+        totem_num = 1;
+    } else {
+        core_per_skt = (max_cpu % 48 == 0) ? 48 : 64;
+        nr_skt = max_cpu / core_per_skt;
+        totem_num = 2;
+    }
+}
+
+/*To modify the L3 register. Traverse the socket and totem（skt_idx, die_idx）*/
+/* 0--unlimit 1--limit*/ 
+static const u32 iocapacityLimitOffset = 13;
+int iocapacity_limit_get(void *dummy)
+{
+	unsigned long *addr = (unsigned long *)dummy;
+    u32 reg_value = readl_reg(*addr);
+    int value = (reg_value >> iocapacityLimitOffset) & 0x1;
+    return value;
+}
+
+void iocapacity_limit_set(void *dummy)
+{
+    int *value = (int *)dummy;
+	unsigned int die_idx = 0, skt_idx = 0;
+	for (skt_idx = 0; skt_idx < nr_skt; skt_idx++) {
+		for (die_idx = 0; die_idx < 2; die_idx++) { 
+            unsigned long base = skt_idx * skt_offset, base2 = 0;
+            unsigned val = 0;
+			if ((totem_num == 1) && (die_idx == 1))
+                continue;
+            if (die_idx == 1)
+                base += TOTEM_OFFSET;
+			base2 = (unsigned long)ioremap(base + TB_L3T0_BASE, REG_RANGE);
+            if (!base2)
+				return;
+            val = readl_reg(base2 + L3T_DYNAMIC_CTRL);
+			if (*value == ENABLE)
+            	val |= (1<<iocapacityLimitOffset);
+			else if (*value == DISABLE)
+				val &= (~(1<<iocapacityLimitOffset));
+            writel_reg(val, base2 + L3T_DYNAMIC_CTRL);
+            iounmap((volatile void*)base2);
+        }
+    }
+    return;
+}
+
+unsigned long get_skt_offset(void) 
+{
+	return skt_offset;
+} 
+
+unsigned get_nr_skt(void)
+{
+	return nr_skt;
+}
+
+unsigned get_totem_num(void)
+{
+	return totem_num;
+}
+
 #else
 #define PREFETCH_POLICY_MAX 0
 static cfg_t prefetch_cfg[] = {};
@@ -163,6 +240,37 @@ void read_unique_get(void *dummy)
 {
     return;
 }
+
+void iocapacity_limit_set(void *dummy)
+{
+	return;
+}
+
+void initial_cpu_information(void)
+{
+	return;
+}
+
+int iocapacity_limit_get(void *dummy)
+{
+	return -1;
+}
+
+unsigned long get_skt_offset(void) 
+{
+	return 0;
+} 
+
+unsigned get_nr_skt(void)
+{
+	return 0;
+}
+
+unsigned get_totem_num(void)
+{
+	return 0;
+}
+
 #endif
 
 int prefetch_policy_num(void)
