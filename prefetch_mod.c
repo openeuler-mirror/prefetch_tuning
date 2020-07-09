@@ -22,6 +22,7 @@
 #include <linux/slab.h>
 #include <linux/cpumask.h>
 #include <linux/miscdevice.h>
+#include <asm/io.h>
 #include "prefetch_mod.h"
 
 #ifndef is_affinity_mask_valid
@@ -44,7 +45,11 @@ static ssize_t prefetch_show(struct device* dev,
 static ssize_t prefetch_mask_store(struct device* dev,
 		struct device_attribute* attr, const char* buf, size_t count);
 static ssize_t prefetch_mask_show(struct device* dev,
-				struct device_attribute* attr, char* buf);
+		struct device_attribute* attr, char* buf);
+static ssize_t iocapacity_limit_store(struct device* dev,
+		struct device_attribute* attr, const char* buf, size_t count);
+static ssize_t iocapacity_limit_show(struct device* dev,
+		struct device_attribute* attr, char* buf);
 
 /* Device create */
 static DEVICE_ATTR(read_unique, S_IRUGO|S_IWUSR,
@@ -56,11 +61,14 @@ static DEVICE_ATTR(policy, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(cpumask, S_IRUGO|S_IWUSR,
 		prefetch_mask_show, prefetch_mask_store);
 
+static DEVICE_ATTR(iocapacity_limit, S_IRUGO|S_IWUSR,
+        iocapacity_limit_show, iocapacity_limit_store);
 
 static struct attribute *prefetch_attrs[] = {
     &dev_attr_policy.attr,
     &dev_attr_cpumask.attr,
     &dev_attr_read_unique.attr,
+	&dev_attr_iocapacity_limit.attr,
     NULL,
 };
 
@@ -202,12 +210,60 @@ static ssize_t prefetch_mask_show(struct device* dev,
 	return ret;
 }
 
+/* 0--unlimit, 1--limit */
+static ssize_t iocapacity_limit_store(struct device* dev,
+		struct device_attribute* attr, const char* buf, size_t count)
+{
+    ssize_t ret = -1;
+    int iocapacity_limit = -1;
+
+    ret = kstrtouint(buf, 0, &iocapacity_limit);
+    if (ret || (iocapacity_limit != 0 && iocapacity_limit != 1)) {
+        pr_err("invalid input!\n");
+        return count;
+    }
+
+    iocapacity_limit_set(&iocapacity_limit);
+
+    return count;
+}
+
+static ssize_t iocapacity_limit_show(struct device* dev,
+		struct device_attribute* attr, char* buf)
+{
+    int reg =1, count = 0;
+	unsigned int die_idx = 0, skt_idx = 0;
+	unsigned long skt_offset = 0x200000000000ULL;
+	unsigned nr_skt = 2, totem_num = 1;
+	nr_skt = get_nr_skt();
+	totem_num = get_totem_num();
+	skt_offset = get_skt_offset();
+	for (skt_idx = 0; skt_idx < nr_skt; skt_idx++) {
+		for (die_idx = 0; die_idx < 2; die_idx++) { 
+			unsigned long base2 = 0, addres = 0;
+            unsigned long base = skt_idx * skt_offset;//g_cpu_info_skt_offset;
+            unsigned val = 0;
+			if ((totem_num == 1) && (die_idx == 1))
+                continue;
+            if (die_idx == 1)
+                base += TOTEM_OFFSET;
+			base2 = (unsigned long)ioremap(base + TB_L3T0_BASE, REG_RANGE);
+            if (!base2)
+				return count;
+			addres = base2 + L3T_DYNAMIC_CTRL;
+            val = iocapacity_limit_get(&addres);
+			count += scnprintf(buf + count, PAGE_SIZE, "register(%d): %d.\n",
+                    reg++, val);
+            iounmap((volatile void*)base2);
+        }
+    }
+    return count;
+}
+
 /*
  * prefetch policy, can be 0~15:
  * 0: disable; 1~15: different thresholds for sms,amop algrithom;
  */
-
-
 static int __init prefetch_init(void)
 {
 	int ret = -1;
@@ -243,6 +299,9 @@ static int __init prefetch_init(void)
     }
 
 	on_each_cpu(get_prefetch, old_cfg, 1);
+
+	/*get cpu infomation to identify iocapacity_limit registers*/
+	initial_cpu_info();
 
 	/* initial prefetch misc and initial prefetch_ops */
 	ret = misc_register(&misc);

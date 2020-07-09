@@ -22,6 +22,12 @@ enum {
 };
 
 #define CACHE_READUNIQ_CTRL (1L << 40)
+#define TB_L3T0_BASE		0x90180000
+#define L3T_DYNAMIC_CTRL	0x400
+#define TOTEM_OFFSET		0x8000000
+#define REG_RANGE		0x5000
+#define writel_reg(val, addr) (*(volatile unsigned int *)(addr) = (val))
+#define readl_reg(addr) (*(volatile unsigned int*)(addr))
 
 #ifdef CONFIG_ARCH_HISI
 typedef struct {
@@ -39,7 +45,13 @@ extern void get_prefetch(void* dummy);
 extern void read_unique_set(void *dummy);
 extern void read_unique_get(void *dummy);
 extern void reset_prefetch(void* dummy);
+extern void initial_cpu_info(void);
+extern int iocapacity_limit_get(void *dummy);
+extern void iocapacity_limit_set(void *dummy);
+unsigned get_totem_num(void);
+unsigned get_nr_skt(void);
 
+unsigned long get_skt_offset(void); 
 extern int prefetch_policy_num(void);
 extern cfg_t *prefetch_policy(int policy);
 
