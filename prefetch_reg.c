@@ -26,6 +26,9 @@
 #include <asm/io.h>
 #include "prefetch_mod.h"
 
+unsigned int read_reg(void *addr, int bitstart, int bitend);
+void write_reg(void *addr, unsigned setval, unsigned bitstart, unsigned bitend);
+
 #ifdef CONFIG_ARCH_HISI
 #define PREFETCH_POLICY_MAX 15
 static cfg_t prefetch_cfg[] = {
@@ -289,6 +292,57 @@ void reset_prefetch(void* dummy)
 {
     cfg_t *pcfg = this_cpu_ptr((cfg_t __percpu *)dummy);
 	set_prefetch(pcfg);
+}
+
+/*
+* Read register value: bitstart == -1
+* Read register bitn: bitstart = bitend = n
+* Read register consecutive bits: set bitstart and bitend
+*/
+inline unsigned int read_reg(void *addr, int bitstart, int bitend)
+{
+    unsigned int val = 0;
+    int bitwide = 0;
+    unsigned int bitmask = 0;
+    if (addr == NULL ||
+        bitend < bitstart ||
+        bitstart > 31 ||
+        bitend > 31)
+        return 0;
+    val = *(volatile unsigned int *)(addr);
+    if (bitstart < 0 || bitend < 0)
+        return val;
+    bitwide = bitend - bitstart + 1;
+    bitmask = (bitwide == 32) ? 0xffffffff : (1 << bitwide) - 1;
+    return (val >> bitstart) & bitmask;
+}
+
+/*
+* Write register bitn: bitstart = bitend = n
+* Write register consecutive bits: set bitstart and bitend
+* Attention: "setval" no need to shift, just pass native value,
+like set 0110B to 23:20 is "write_reg(addr, 0x6, 20, 23)"
+*/
+inline void write_reg(void *addr, unsigned setval, unsigned bitstart, unsigned bitend)
+{
+    unsigned int val = 0;
+    int bitwide = 0;
+    unsigned int bitmask = 0;
+    if (addr == NULL ||
+        bitend < bitstart ||
+        bitstart > 31 ||
+        bitend > 31 ||
+        bitstart < 0 ||
+        bitend < 0)
+        return;
+    val = *(volatile unsigned int *)(addr);
+    bitwide = bitend - bitstart + 1;
+    bitmask = (bitwide == 32) ? 0xffffffff : (1 << bitwide) - 1;
+    setval &= bitmask;
+    val &= ~(bitmask << bitstart);
+    setval <<= bitstart;
+    *(volatile unsigned int *)(addr) = val | setval;
+    return;
 }
 
 MODULE_LICENSE("GPL");
