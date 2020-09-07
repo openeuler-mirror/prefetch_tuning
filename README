@@ -1,8 +1,8 @@
 This module is based on Kunpeng chip and provides some performance-sensitive chip parameters for adjustment.
 
-Build:
+Build and install:
     make clean && make
-    insmod pretetch_tuning.ko
+    insmod prefetch_tuning.ko
 
 There will be some files under /sys/class/misc/prefetch/
     policy: Prefetch policy, can be set to 0~15.
@@ -34,7 +34,6 @@ There will be some files under /sys/class/misc/prefetch/
     ddr_compress_opt_en: Optimization switch of support HHA compression access. 0--disable 1--enable.
     snpsleep_en: Whether to enable snp sleep. 0--disable 1--enable.
     prefetchtgt_en: Whether to enable the prefetchtgt. 0--disable 1--enable.
-    bankintl_stagger: Simple interleave mode fine-tuning enable. 0--disable --enable.
     cpu_pf_lqos_en: Whether to enable the prefetch operation delivered by the CPU to be forcibly processed as the lqos operation. 0--disable 1--enable.
     refillsize_com_ada_en: Whether to enable the auto-sensing of the size of the request sent to the HHA. If the size of the continuously received requests is 128 bytes or 64 bytes, the size of the prefetched request is automatically adjusted. 0--disable 1--enable adaptive size adjustment.
     refillsize_pre_ada_en: Whether to enable the adaptation of the size of the request sent to the HHA. If the size of the continuously received request is 128 bytes or 64 bytes, the size of the normal request is automatically adjusted. 0--disable 1--enable adaptive size adjustment.
