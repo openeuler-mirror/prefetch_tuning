@@ -224,16 +224,6 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &l3t_dauctrl_mtx,
         .Name = "sequence_opt"
     },
-    [BANKINTLV_ORDER] = {
-        .StartBit = BANKINTLV_START,
-        .EndBit = BANKINTLV_END,
-        .Base = TB_L3T0_BASE,
-        .Offset = L3T_DYNAMIC_AUCTRL1,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
-        .Name = "bankintlv"
-    },
     [PREFETCH_ULT_DDR_ORDER] = {
         .StartBit = PREFETCH_ULT_DDR_START,
         .EndBit = PREFETCH_ULT_DDR_END,
@@ -424,16 +414,6 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &l3t_dauctr0_mtx,
         .Name = "prefetchtgt_en"
     },
-    [BANKINTL_STAGGER_ORDER] = {
-        .StartBit = BANKINTL_STAGGER_START,
-        .EndBit = BANKINTL_STAGGER_END,
-        .Base = TB_L3T0_BASE,
-        .Offset = L3T_DYNAMIC_AUCTRL1,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
-        .Name = "bankintl_stagger"
-    },
     [CPU_PF_LQOS_EN_ORDER] = {
         .StartBit = CPU_PF_LQOS_EN_START,
         .EndBit = CPU_PF_LQOS_EN_END,
@@ -563,26 +543,6 @@ static FuncStruct Funcs[] = {
         .Glb = 0,
         .temp_mtx = &hha_funcdis_mtx,
         .Name = "reg_funcdis_comb"
-    },
-    [DDR_INTLV_SKT_ORDER] = {
-        .StartBit = DDR_INTLV_SKT_START,
-        .EndBit = DDR_INTLV_SKT_END,
-        .Base = TB_AA_BASE,
-        .Offset = AA_MSD1_CTRL,
-        .Sup = 3,
-        .Glb = 0,
-        .temp_mtx = &com_msd1ctrl_mtx,
-        .Name = "ddr_intlv_skt"
-    },
-    [DDR_INTLV_DIE_ORDER] = {
-        .StartBit = DDR_INTLV_DIE_START,
-        .EndBit = DDR_INTLV_DIE_END,
-        .Base = TB_AA_BASE,
-        .Offset = AA_MSD1_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &com_msd1ctrl_mtx,
-        .Name = "ddr_intlv_die"
     },
 };
 
@@ -717,7 +677,7 @@ void reset_default_cfg(int *old_cfg_int)
 {
     int funcnum = 0;
     for (funcnum = 0; funcnum < FUNC_NUM; funcnum++) {
-        Funcs[funcnum].Val = old_cfg_int[0];
+        Funcs[funcnum].Val = old_cfg_int[funcnum];
         set_val(Funcs[funcnum]);
     }
     return;

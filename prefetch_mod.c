@@ -86,9 +86,6 @@ static DEVICE_ATTR(prime_drop_mask, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(sequence_opt, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
-static DEVICE_ATTR(bankintlv, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
 static DEVICE_ATTR(prefetch_utl_ddr, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
@@ -146,9 +143,6 @@ static DEVICE_ATTR(snpsleep_en, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(prefetchtgt_en, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
-static DEVICE_ATTR(bankintl_stagger, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
 static DEVICE_ATTR(cpu_pf_lqos_en, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
@@ -188,12 +182,6 @@ static DEVICE_ATTR(prefetch_comb, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(reg_funcdis_comb, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
-static DEVICE_ATTR(ddr_intlv_skt, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(ddr_intlv_die, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
 static struct attribute *prefetch_attrs[] = {
     &dev_attr_policy.attr,
     &dev_attr_cpumask.attr,
@@ -206,7 +194,6 @@ static struct attribute *prefetch_attrs[] = {
     &dev_attr_prefetch_drop_hha.attr,
     &dev_attr_prime_drop_mask.attr,
     &dev_attr_sequence_opt.attr,
-    &dev_attr_bankintlv.attr,
     &dev_attr_prefetch_utl_ddr.attr,
     &dev_attr_prefetch_utl_ddr_en.attr,
     &dev_attr_prefetch_utl_l3t.attr,
@@ -226,7 +213,6 @@ static struct attribute *prefetch_attrs[] = {
     &dev_attr_ddr_compress_opt_en.attr,
     &dev_attr_snpsleep_en.attr,
     &dev_attr_prefetchtgt_en.attr,
-    &dev_attr_bankintl_stagger.attr,
     &dev_attr_cpu_pf_lqos_en.attr,
     &dev_attr_refillsize_com_ada_en.attr,
     &dev_attr_refillsize_pre_ada_en.attr,
@@ -240,8 +226,6 @@ static struct attribute *prefetch_attrs[] = {
     &dev_attr_reg_dir_replace_alg.attr,
     &dev_attr_prefetch_comb.attr,
     &dev_attr_reg_funcdis_comb.attr,
-    &dev_attr_ddr_intlv_skt.attr,
-    &dev_attr_ddr_intlv_die.attr,
     NULL,
 };
 
