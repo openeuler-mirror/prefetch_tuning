@@ -14,22 +14,11 @@ There will be some files under /sys/class/misc/prefetch/
     prefetch_drop_hha: Whether to merge a non-prefetch operation with the previous prefetch operation. 0--allow 1--limit. 
     prime_drop_mask: Enable prefetch to retry randomly. 0--disable 1--enable.
     sequence_opt: Whether change the L3T processing to serial mode when blocking. 0--limit 1--enable.
-    bankintlv: Choose bank interleaving algorithm. 0--simple 1--complex. 
     prefetch_utl_ddr: The utilization of ddr that leads to the halving the threshold of prefetch. 0--less thean 1/2 1--1/2 2--3/4 3--almost full.
     prefetch_utl_ddr_en: Whether to allow the automatic threshold reduction according to the utilization of ddr. 0--forbid 1--allow.
     prefetch_utl_l3t: The utilization of l3t that leads to the halving the threshold of prefetch. 0--less thean 1/2 1--1/2 2--3/4 3--almost full.
     prefetch_utl_l3t_en: Whether to allow the automatic threshold reduction according to the utilization of l3t. 0--forbid 1--allow.
     prefetch_start_level: The number of missing addresses that leads to prefetch. 0--32 1--2 n-1--n, can be 0~31.
-    totem_dual: Assign the number of totems in each socket. 0--1, 1--2.
-    canum_sktvec: Vector configuration of chip, active high. Range form 0 to 255.
-    skt1_tb_cavec: Vector configuration of L3T partition in Socket1 TotemB, active high. Range from 0 to 255.
-    skt1_ta_cavec: Vector configuration of L3T partition in Socket1 TotemA, active high. Range from 0 to 255.
-    skt0_tb_cavec: Vector configuration of L3T partition in Socket0 TotemB, active high. Range from 0 to 255.
-    skt0_ta_cavec: Vector configuration of L3T partition in Socket0 TotemA, active high. Range from 0 to 255.
-    skt3_tb_cavec: Vector configuration of L3T partition in Socket3 TotemB, active high. Range from 0 to 255.
-    skt3_ta_cavec: Vector configuration of L3T partition in Socket3 TotemA, active high. Range from 0 to 255.
-    skt2_tb_cavec: Vector configuration of L3T partition in Socket2 TotemB, active high. Range from 0 to 255.
-    skt2_ta_cavec: Vector configuration of L3T partition in Socket2 TotemA, active high. Range from 0 to 255.
     rdmerge_upgrade_en: Whether to allow the RS to merge with the preceding ReadE. 0--disabl 1--allow.
     ddr_compress_opt_en: Optimization switch of support HHA compression access. 0--disable 1--enable.
     snpsleep_en: Whether to enable snp sleep. 0--disable 1--enable.

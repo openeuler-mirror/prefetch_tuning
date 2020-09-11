@@ -101,36 +101,6 @@ static DEVICE_ATTR(prefetch_utl_l3t_en, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(prefetch_start_level, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
-static DEVICE_ATTR(totem_dual, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(canum_sktvec, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(skt1_tb_cavec, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(skt1_ta_cavec, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(skt0_tb_cavec, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(skt0_ta_cavec, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(skt3_tb_cavec, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(skt3_ta_cavec, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(skt2_tb_cavec, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(skt2_ta_cavec, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
 static DEVICE_ATTR(rdmerge_upgrade_en, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
@@ -182,6 +152,12 @@ static DEVICE_ATTR(prefetch_comb, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(reg_funcdis_comb, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
+static DEVICE_ATTR(ddr_intlv_skt, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(ddr_intlv_die, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
 static struct attribute *prefetch_attrs[] = {
     &dev_attr_policy.attr,
     &dev_attr_cpumask.attr,
@@ -199,16 +175,6 @@ static struct attribute *prefetch_attrs[] = {
     &dev_attr_prefetch_utl_l3t.attr,
     &dev_attr_prefetch_utl_l3t_en.attr,
     &dev_attr_prefetch_start_level.attr,
-    &dev_attr_totem_dual.attr,
-    &dev_attr_canum_sktvec.attr,
-    &dev_attr_skt1_tb_cavec.attr,
-    &dev_attr_skt1_ta_cavec.attr,
-    &dev_attr_skt0_tb_cavec.attr,
-    &dev_attr_skt0_ta_cavec.attr,
-    &dev_attr_skt3_tb_cavec.attr,
-    &dev_attr_skt3_ta_cavec.attr,
-    &dev_attr_skt2_tb_cavec.attr,
-    &dev_attr_skt2_ta_cavec.attr,
     &dev_attr_rdmerge_upgrade_en.attr,
     &dev_attr_ddr_compress_opt_en.attr,
     &dev_attr_snpsleep_en.attr,
@@ -226,6 +192,8 @@ static struct attribute *prefetch_attrs[] = {
     &dev_attr_reg_dir_replace_alg.attr,
     &dev_attr_prefetch_comb.attr,
     &dev_attr_reg_funcdis_comb.attr,
+    &dev_attr_ddr_intlv_skt.attr,
+    &dev_attr_ddr_intlv_die.attr,
     NULL,
 };
 

@@ -13,13 +13,6 @@
 # Create: 2020-07-21
 # Author: Liuke (liuke20@gitee)
 
-echo "L3T_DYNAMIC_AUCTRL1: bankintl_stagger set test, (exp:0,1)"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/bankintl_stagger
-    cat /sys/class/misc/prefetch/bankintl_stagger | grep register\(1\)
-done
-
 echo "L3T_DYNAMIC_AUCTRL1: cpu_pf_lqos_en set test, (exp:0,1)"
 for i in {0..1}
 do
@@ -55,79 +48,42 @@ do
     cat /sys/class/misc/prefetch/sequence_opt | grep register\(1\)
 done
 
-echo "L3T_DYNAMIC_AUCTRL1: bankintlv set test, (exp:0,1)"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/bankintlv
-    cat /sys/class/misc/prefetch/bankintlv | grep register\(1\)
-done
-
-echo "L3T_DYNAMIC_AUCTRL1: set bankintl_stagger to 0, (exp:0,1,1,1,1,1,1)"
-echo 0 > /sys/class/misc/prefetch/bankintl_stagger
-cat /sys/class/misc/prefetch/bankintl_stagger | grep register\(1\)
-cat /sys/class/misc/prefetch/cpu_pf_lqos_en | grep register\(1\)
-cat /sys/class/misc/prefetch/prime_drop_mask | grep register\(1\)
-cat /sys/class/misc/prefetch/refillsize_com_ada_en | grep register\(1\)
-cat /sys/class/misc/prefetch/refillsize_pre_ada_en | grep register\(1\)
-cat /sys/class/misc/prefetch/sequence_opt | grep register\(1\)
-cat /sys/class/misc/prefetch/bankintlv | grep register\(1\)
-
-echo "L3T_DYNAMIC_AUCTRL1: set cpu_pf_lqos_en to 0, (exp:0,0,1,1,1,1,1)"
+echo "L3T_DYNAMIC_AUCTRL1: set cpu_pf_lqos_en to 0, (exp:0,1,1,1,1)"
 echo 0 > /sys/class/misc/prefetch/cpu_pf_lqos_en
-cat /sys/class/misc/prefetch/bankintl_stagger | grep register\(1\)
 cat /sys/class/misc/prefetch/cpu_pf_lqos_en | grep register\(1\)
 cat /sys/class/misc/prefetch/prime_drop_mask | grep register\(1\)
 cat /sys/class/misc/prefetch/refillsize_com_ada_en | grep register\(1\)
 cat /sys/class/misc/prefetch/refillsize_pre_ada_en | grep register\(1\)
 cat /sys/class/misc/prefetch/sequence_opt | grep register\(1\)
-cat /sys/class/misc/prefetch/bankintlv | grep register\(1\)
 
-echo "L3T_DYNAMIC_AUCTRL1: set prime_drop_mask to 0, (exp:0,0,0,1,1,1,1)"
+echo "L3T_DYNAMIC_AUCTRL1: set prime_drop_mask to 0, (exp:0,0,1,1,1)"
 echo 0 > /sys/class/misc/prefetch/prime_drop_mask
-cat /sys/class/misc/prefetch/bankintl_stagger | grep register\(1\)
 cat /sys/class/misc/prefetch/cpu_pf_lqos_en | grep register\(1\)
 cat /sys/class/misc/prefetch/prime_drop_mask | grep register\(1\)
 cat /sys/class/misc/prefetch/refillsize_com_ada_en | grep register\(1\)
 cat /sys/class/misc/prefetch/refillsize_pre_ada_en | grep register\(1\)
 cat /sys/class/misc/prefetch/sequence_opt | grep register\(1\)
-cat /sys/class/misc/prefetch/bankintlv | grep register\(1\)
 
-echo "L3T_DYNAMIC_AUCTRL1: set refillsize_com_ada_en to 0, (exp:0,0,0,0,1,1,1)"
+echo "L3T_DYNAMIC_AUCTRL1: set refillsize_com_ada_en to 0, (exp:0,0,0,1,1)"
 echo 0 > /sys/class/misc/prefetch/refillsize_com_ada_en
-cat /sys/class/misc/prefetch/bankintl_stagger | grep register\(1\)
 cat /sys/class/misc/prefetch/cpu_pf_lqos_en | grep register\(1\)
 cat /sys/class/misc/prefetch/prime_drop_mask | grep register\(1\)
 cat /sys/class/misc/prefetch/refillsize_com_ada_en | grep register\(1\)
 cat /sys/class/misc/prefetch/refillsize_pre_ada_en | grep register\(1\)
 cat /sys/class/misc/prefetch/sequence_opt | grep register\(1\)
-cat /sys/class/misc/prefetch/bankintlv | grep register\(1\)
 
-echo "L3T_DYNAMIC_AUCTRL1: set refillsize_pre_ada_en to 0, (exp:0,0,0,0,0,1,1)"
+echo "L3T_DYNAMIC_AUCTRL1: set refillsize_pre_ada_en to 0, (exp:0,0,0,0,1)"
 echo 0 > /sys/class/misc/prefetch/refillsize_pre_ada_en
-cat /sys/class/misc/prefetch/bankintl_stagger | grep register\(1\)
 cat /sys/class/misc/prefetch/cpu_pf_lqos_en | grep register\(1\)
 cat /sys/class/misc/prefetch/prime_drop_mask | grep register\(1\)
 cat /sys/class/misc/prefetch/refillsize_com_ada_en | grep register\(1\)
 cat /sys/class/misc/prefetch/refillsize_pre_ada_en | grep register\(1\)
 cat /sys/class/misc/prefetch/sequence_opt | grep register\(1\)
-cat /sys/class/misc/prefetch/bankintlv | grep register\(1\)
 
-echo "L3T_DYNAMIC_AUCTRL1: set sequence_opt to 0, (exp:0,0,0,0,0,0,1)"
+echo "L3T_DYNAMIC_AUCTRL1: set sequence_opt to 0, (exp:0,0,0,0,0)"
 echo 0 > /sys/class/misc/prefetch/sequence_opt
-cat /sys/class/misc/prefetch/bankintl_stagger | grep register\(1\)
 cat /sys/class/misc/prefetch/cpu_pf_lqos_en | grep register\(1\)
 cat /sys/class/misc/prefetch/prime_drop_mask | grep register\(1\)
 cat /sys/class/misc/prefetch/refillsize_com_ada_en | grep register\(1\)
 cat /sys/class/misc/prefetch/refillsize_pre_ada_en | grep register\(1\)
 cat /sys/class/misc/prefetch/sequence_opt | grep register\(1\)
-cat /sys/class/misc/prefetch/bankintlv | grep register\(1\)
-
-echo "L3T_DYNAMIC_AUCTRL1: set bankintlv to 0, (exp:0,0,0,0,0,0,0)"
-echo 0 > /sys/class/misc/prefetch/bankintlv
-cat /sys/class/misc/prefetch/bankintl_stagger | grep register\(1\)
-cat /sys/class/misc/prefetch/cpu_pf_lqos_en | grep register\(1\)
-cat /sys/class/misc/prefetch/prime_drop_mask | grep register\(1\)
-cat /sys/class/misc/prefetch/refillsize_com_ada_en | grep register\(1\)
-cat /sys/class/misc/prefetch/refillsize_pre_ada_en | grep register\(1\)
-cat /sys/class/misc/prefetch/sequence_opt | grep register\(1\)
-cat /sys/class/misc/prefetch/bankintlv | grep register\(1\)

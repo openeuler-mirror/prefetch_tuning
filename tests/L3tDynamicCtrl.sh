@@ -70,7 +70,7 @@ cat /sys/class/misc/prefetch/sqmerge | grep register\(1\)
 cat /sys/class/misc/prefetch/prefetch_drop_hha | grep register\(1\)
 cat /sys/class/misc/prefetch/tag_rep_alg | grep register\(1\)
 cat /sys/class/misc/prefetch/rdmerge_upgrade_en | grep register\(1\)
-'''
+
 echo "L3T_DYNAMIC_CTRL: set prefetch_drop_hha to 0, (exp:0, 0, 0, 3, 1)"
 echo 0 > /sys/class/misc/prefetch/prefetch_drop_hha
 cat /sys/class/misc/prefetch/iocapacity_limit | grep register\(1\)
@@ -78,7 +78,7 @@ cat /sys/class/misc/prefetch/sqmerge | grep register\(1\)
 cat /sys/class/misc/prefetch/prefetch_drop_hha | grep register\(1\)
 cat /sys/class/misc/prefetch/tag_rep_alg | grep register\(1\)
 cat /sys/class/misc/prefetch/rdmerge_upgrade_en | grep register\(1\)
-'''
+
 echo "L3T_DYNAMIC_CTRL: set tag_rep_alg to 2, (exp:0, 0, 0, 2, 1)"
 echo 2 > /sys/class/misc/prefetch/tag_rep_alg
 cat /sys/class/misc/prefetch/iocapacity_limit | grep register\(1\)
