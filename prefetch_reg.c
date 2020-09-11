@@ -42,8 +42,8 @@ static DEFINE_MUTEX(com_msd1ctrl_mtx);
 
 unsigned int read_reg(void *addr, int bitstart, int bitend);
 void write_reg(void *addr, unsigned setval, unsigned bitstart, unsigned bitend);
-#define PREFETCH_POLICY_MAX 15
 
+#define PREFETCH_POLICY_MAX 15
 static cfg_t prefetch_cfg[] = {
     [0] = {
         .cpuprefctrl_el1 = 0x112f8127f,
@@ -274,106 +274,6 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &l3t_prefetch_mtx,
         .Name = "prefetch_start_level"
     },
-    [REG_TOTEM_DUAL_ORDER] = {
-        .StartBit = REG_TOTEM_DUAL_START,
-        .EndBit = REG_TOTEM_DUAL_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_TOTEMNUM,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_totemnum_mtx,
-        .Name = "totem_dual"
-    },
-    [REG_CANUM_SKTVEC_ORDER] = {
-        .StartBit = REG_CANUM_SKTVEC_START,
-        .EndBit = REG_CANUM_SKTVEC_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_TOTEMNUM,
-        .Sup = 15,
-        .Glb = 0,
-        .temp_mtx = &hha_totemnum_mtx,
-        .Name = "canum_sktvec"
-    },
-    [REG_SKT1_TB_CAVEC_ORDER] = {
-        .StartBit = REG_SKT1_TB_CAVEC_START,
-        .EndBit = REG_SKT1_TB_CAVEC_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_CANUM_L,
-        .Sup = 255,
-        .Glb = 0,
-        .temp_mtx = &hha_canuml_mtx,
-        .Name = "skt1_tb_cavec"
-    },
-    [REG_SKT1_TA_CAVEC_ORDER] = {
-        .StartBit = REG_SKT1_TA_CAVEC_START,
-        .EndBit = REG_SKT1_TA_CAVEC_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_CANUM_L,
-        .Sup = 255,
-        .Glb = 0,
-        .temp_mtx = &hha_canuml_mtx,
-        .Name = "skt1_ta_cavec"
-    },
-    [REG_SKT0_TB_CAVEC_ORDER] = {
-        .StartBit = REG_SKT0_TB_CAVEC_START,
-        .EndBit = REG_SKT0_TB_CAVEC_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_CANUM_L,
-        .Sup = 255,
-        .Glb = 0,
-        .temp_mtx = &hha_canuml_mtx,
-        .Name = "skt0_tb_cavec"
-    },
-    [REG_SKT0_TA_CAVEC_ORDER] = {
-        .StartBit = REG_SKT0_TA_CAVEC_START,
-        .EndBit = REG_SKT0_TA_CAVEC_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_CANUM_L,
-        .Sup = 255,
-        .Glb = 0,
-        .temp_mtx = &hha_canuml_mtx,
-        .Name = "skt0_ta_cavec"
-    },
-    [REG_SKT3_TB_CAVEC_ORDER] = {
-        .StartBit = REG_SKT3_TB_CAVEC_START,
-        .EndBit = REG_SKT3_TB_CAVEC_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_CANUM_H,
-        .Sup = 255,
-        .Glb = 0,
-        .temp_mtx = &hha_canumh_mtx,
-        .Name = "skt3_tb_cavec"
-    },
-    [REG_SKT3_TA_CAVEC_ORDER] = {
-        .StartBit = REG_SKT3_TA_CAVEC_START,
-        .EndBit = REG_SKT3_TA_CAVEC_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_CANUM_H,
-        .Sup = 255,
-        .Glb = 0,
-        .temp_mtx = &hha_canumh_mtx,
-        .Name = "skt3_ta_cavec"
-    },
-    [REG_SKT2_TB_CAVEC_ORDER] = {
-        .StartBit = REG_SKT2_TB_CAVEC_START,
-        .EndBit = REG_SKT2_TB_CAVEC_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_CANUM_H,
-        .Sup = 255,
-        .Glb = 0,
-        .temp_mtx = &hha_canumh_mtx,
-        .Name = "skt2_tb_cavec"
-    },
-    [REG_SKT3_TA_CAVEC_END] = {
-        .StartBit = REG_SKT2_TA_CAVEC_START,
-        .EndBit = REG_SKT2_TA_CAVEC_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_CANUM_H,
-        .Sup = 255,
-        .Glb = 0,
-        .temp_mtx = &hha_canumh_mtx,
-        .Name = "skt2_ta_cavec"
-    },
     [RDMERGE_UPGRADE_EN_ORDER] = {
         .StartBit = RDMERGE_UPGRADE_EN_START,
         .EndBit = RDMERGE_UPGRADE_EN_END,
@@ -544,6 +444,26 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &hha_funcdis_mtx,
         .Name = "reg_funcdis_comb"
     },
+    [DDR_INTLV_SKT_ORDER] = {
+        .StartBit = DDR_INTLV_SKT_START,
+        .EndBit = DDR_INTLV_SKT_END,
+        .Base = TB_AA_BASE,
+        .Offset = AA_MSD1_CTRL,
+        .Sup = 3,
+        .Glb = 0,
+        .temp_mtx = &com_msd1ctrl_mtx,
+        .Name = "ddr_intlv_skt"
+    },
+    [DDR_INTLV_DIE_ORDER] = {
+        .StartBit = DDR_INTLV_DIE_START,
+        .EndBit = DDR_INTLV_DIE_END,
+        .Base = TB_AA_BASE,
+        .Offset = AA_MSD1_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &com_msd1ctrl_mtx,
+        .Name = "ddr_intlv_die"
+    },
 };
 
 void set_prefetch(void* dummy)
@@ -702,6 +622,13 @@ int get_default_cfg(int *arr)
     }
     return 1;
 }
+
+//#else
+//#define PREFETCH_POLICY_MAX 0
+//static cfg_t prefetch_cfg[] = {};
+//static FuncStruct Funcs[] = {};
+
+//#endif
 
 int prefetch_policy_num(void)
 {
