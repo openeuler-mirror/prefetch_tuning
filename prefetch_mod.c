@@ -152,10 +152,94 @@ static DEVICE_ATTR(prefetch_comb, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(reg_funcdis_comb, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
-static DEVICE_ATTR(ddr_intlv_skt, S_IRUGO|S_IWUSR,
+static DEVICE_ATTR(reg_nosnp_atomic_bypass_en, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
-static DEVICE_ATTR(ddr_intlv_die, S_IRUGO|S_IWUSR,
+static DEVICE_ATTR(reg_ro_alloc_shut_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_wrfull_hit_shut_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(req_conflict_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(lower_power_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(dataclean_shut_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(arb_flush_shut_en_n, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(pgnt_arb_exat_shut_en_n, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(fast_exter_shut_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(fast_data_shut_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(pend_data_shut_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(ramfwd_shut_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(ramthr_merge_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(ext_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reads_upgrade_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(rdmerge_pipe_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(spill_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(spill_shared_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(spill_instr_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(sqrdmerge_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(prefetch_drop_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(datapull_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(mkinvld_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(ramthr_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(rsperr_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(force_cq_clk_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(wrfull_create_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(cleanunique_data_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(lock_share_req_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(atomic_monitor_en, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
 static struct attribute *prefetch_attrs[] = {
@@ -192,8 +276,36 @@ static struct attribute *prefetch_attrs[] = {
     &dev_attr_reg_dir_replace_alg.attr,
     &dev_attr_prefetch_comb.attr,
     &dev_attr_reg_funcdis_comb.attr,
-    &dev_attr_ddr_intlv_skt.attr,
-    &dev_attr_ddr_intlv_die.attr,
+    &dev_attr_reg_nosnp_atomic_bypass_en.attr,
+    &dev_attr_reg_ro_alloc_shut_en.attr,
+    &dev_attr_reg_wrfull_hit_shut_en.attr,
+    &dev_attr_req_conflict_en.attr,
+    &dev_attr_lower_power_en.attr,
+    &dev_attr_dataclean_shut_en.attr,
+    &dev_attr_arb_flush_shut_en_n.attr,
+    &dev_attr_pgnt_arb_exat_shut_en_n.attr,
+    &dev_attr_fast_exter_shut_en.attr,
+    &dev_attr_fast_data_shut_en.attr,
+    &dev_attr_pend_data_shut_en.attr,
+    &dev_attr_ramfwd_shut_en.attr,
+    &dev_attr_ramthr_merge_en.attr,
+    &dev_attr_ext_en.attr,
+    &dev_attr_reads_upgrade_en.attr,
+    &dev_attr_rdmerge_pipe_en.attr,
+    &dev_attr_spill_en.attr,
+    &dev_attr_spill_shared_en.attr,
+    &dev_attr_spill_instr_en.attr,
+    &dev_attr_sqrdmerge_en.attr,
+    &dev_attr_prefetch_drop_en.attr,
+    &dev_attr_datapull_en.attr,
+    &dev_attr_mkinvld_en.attr,
+    &dev_attr_ramthr_en.attr,
+    &dev_attr_rsperr_en.attr,
+    &dev_attr_force_cq_clk_en.attr,
+    &dev_attr_wrfull_create_en.attr,
+    &dev_attr_cleanunique_data_en.attr,
+    &dev_attr_lock_share_req_en.attr,
+    &dev_attr_atomic_monitor_en.attr,
     NULL,
 };
 
