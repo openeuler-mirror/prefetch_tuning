@@ -31,9 +31,6 @@ static DEFINE_MUTEX(l3t_dctrl_mtx);
 static DEFINE_MUTEX(l3t_dauctrl_mtx);
 static DEFINE_MUTEX(l3t_dauctr0_mtx);
 static DEFINE_MUTEX(l3t_prefetch_mtx);
-static DEFINE_MUTEX(hha_totemnum_mtx);
-static DEFINE_MUTEX(hha_canuml_mtx);
-static DEFINE_MUTEX(hha_canumh_mtx);
 static DEFINE_MUTEX(l3t_sctrl_mtx);
 static DEFINE_MUTEX(hha_ctrl_mtx);
 static DEFINE_MUTEX(hha_dirctrl_mtx);
@@ -444,25 +441,315 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &hha_funcdis_mtx,
         .Name = "reg_funcdis_comb"
     },
-    [DDR_INTLV_SKT_ORDER] = {
-        .StartBit = DDR_INTLV_SKT_START,
-        .EndBit = DDR_INTLV_SKT_END,
-        .Base = TB_AA_BASE,
-        .Offset = AA_MSD1_CTRL,
-        .Sup = 3,
-        .Glb = 0,
-        .temp_mtx = &com_msd1ctrl_mtx,
-        .Name = "ddr_intlv_skt"
-    },
-    [DDR_INTLV_DIE_ORDER] = {
-        .StartBit = DDR_INTLV_DIE_START,
-        .EndBit = DDR_INTLV_DIE_END,
-        .Base = TB_AA_BASE,
-        .Offset = AA_MSD1_CTRL,
+    [REG_NOSNP_ATOMIC_BYPASS_EN_ORDER] = {
+        .StartBit = REG_NOSNP_ATOMIC_BYPASS_EN_START,
+        .EndBit = REG_NOSNP_ATOMIC_BYPASS_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &com_msd1ctrl_mtx,
-        .Name = "ddr_intlv_die"
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "reg_nosnp_atomic_bypass_en"
+    },
+    [REG_RO_ALLOC_SHUT_EN_ORDER] = {
+        .StartBit = REG_RO_ALLOC_SHUT_EN_START,
+        .EndBit = REG_RO_ALLOC_SHUT_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "reg_ro_alloc_shut_en"
+    },
+    [REG_WRFULL_HIT_SHUT_EN_ORDER] = {
+        .StartBit = REG_WRFULL_HIT_SHUT_EN_START,
+        .EndBit = REG_WRFULL_HIT_SHUT_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "reg_wrfull_hit_shut_en"
+    },
+    [REQ_CONFLICT_EN_ORDER] = {
+        .StartBit = REQ_CONFLICT_EN_START,
+        .EndBit = REQ_CONFLICT_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "req_conflict_en"
+    },
+    [LOWER_POWER_EN_ORDER] = {
+        .StartBit = LOWER_POWER_EN_START,
+        .EndBit = LOWER_POWER_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "lower_power_en"
+    },
+    [DATACLEAN_SHUT_EN_ORDER] = {
+        .StartBit = DATACLEAN_SHUT_EN_START,
+        .EndBit = DATACLEAN_SHUT_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "dataclean_shut_en"
+    },
+    [ARB_FLUSH_SHUT_EN_ORDER] = {
+        .StartBit = ARB_FLUSH_SHUT_EN_START,
+        .EndBit = ARB_FLUSH_SHUT_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "arb_flush_shut_en_n"
+    },
+    [PGNT_ARB_EXAT_SHUT_EN_ORDER] = {
+        .StartBit = PGNT_ARB_EXAT_SHUT_EN_START,
+        .EndBit = PGNT_ARB_EXAT_SHUT_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "pgnt_arb_exat_shut_en_n"
+    },
+    [FAST_EXTER_SHUT_EN_ORDER] = {
+        .StartBit = FAST_EXTER_SHUT_EN_START,
+        .EndBit = FAST_EXTER_SHUT_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "fast_exter_shut_en"
+    },
+    [FAST_DATA_SHUT_EN_ORDER] = {
+        .StartBit = FAST_DATA_SHUT_EN_START,
+        .EndBit = FAST_DATA_SHUT_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "fast_data_shut_en"
+    },
+    [PEND_DATA_SHUT_EN_ORDER] = {
+        .StartBit = PEND_DATA_SHUT_EN_START,
+        .EndBit = PEND_DATA_SHUT_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "pend_data_shut_en"
+    },
+    [RAMFWD_SHUT_EN_ORDER] = {
+        .StartBit = RAMFWD_SHUT_EN_START,
+        .EndBit = RAMFWD_SHUT_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "ramfwd_shut_en"
+    },
+    [RAMTHR_MERGE_EN_ORDER] = {
+        .StartBit = RAMTHR_MERGE_EN_START,
+        .EndBit = RAMTHR_MERGE_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "ramthr_merge_en"
+    },
+    [EXT_EN_ORDER] = {
+        .StartBit = EXT_EN_START,
+        .EndBit = EXT_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_STATIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_sctrl_mtx,
+        .Name = "ext_en"
+    },
+    [READS_UPGRADE_EN_ORDER] = {
+        .StartBit = READS_UPGRADE_EN_START,
+        .EndBit = READS_UPGRADE_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "reads_upgrade_en"
+    },
+    [RDMERGE_PIPE_EN_ORDER] = {
+        .StartBit = RDMERGE_PIPE_EN_START,
+        .EndBit = RDMERGE_PIPE_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "rdmerge_pipe_en"
+    },
+    [SPILL_EN_ORDER] = {
+        .StartBit = SPILL_EN_START,
+        .EndBit = SPILL_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "spill_en"
+    },
+    [SPILL_SHARE_EN_ORDER] = {
+        .StartBit = SPILL_SHARE_EN_START,
+        .EndBit = SPILL_SHARE_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "spill_shared_en"
+    },
+    [SPILL_INSTR_EN_ORDER] = {
+        .StartBit = SPILL_INSTR_EN_START,
+        .EndBit = SPILL_INSTR_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "spill_instr_en"
+    },
+    [SQRDMERGE_EN_ORDER] = {
+        .StartBit = SQRDMERGE_EN_START,
+        .EndBit = SQRDMERGE_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "sqrdmerge_en"
+    },
+    [PREFETCH_DROP_EN_ORDER] = {
+        .StartBit = PREFETCH_DROP_EN_START,
+        .EndBit = PREFETCH_DROP_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "prefetch_drop_en"
+    },
+    [DATAPULL_EN_ORDER] = {
+        .StartBit = DATAPULL_EN_START,
+        .EndBit = DATAPULL_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "datapull_en"
+    },
+    [MKINVLD_EN_ORDER] = {
+        .StartBit = MKINVLD_EN_START,
+        .EndBit = MKINVLD_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "mkinvld_en"
+    },
+    [RAMTHR_EN_ORDER] = {
+        .StartBit = RAMTHR_EN_START,
+        .EndBit = RAMTHR_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "ramthr_en"
+    },
+    [RSPERR_EN_ORDER] = {
+        .StartBit = RSPERR_EN_START,
+        .EndBit = RSPERR_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "rsperr_en"
+    },
+    [FORCE_CQ_CLK_EN_ORDER] = {
+        .StartBit = FORCE_CQ_CLK_EN_START,
+        .EndBit = FORCE_CQ_CLK_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "force_cq_clk_en"
+    },
+    [RDNOSNP_NCA_SHUT_EN_ORDER] = {
+        .StartBit = RDNOSNP_NCA_SHUT_EN_START,
+        .EndBit = FORCE_CQ_CLK_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dctrl_mtx,
+        .Name = "force_cq_clk_en"
+    },
+    [WRFULL_CREATE_EN_ORDER] = {
+        .StartBit = WRFULL_CREATE_EN_START,
+        .EndBit = WRFULL_CREATE_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL0,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctr0_mtx,
+        .Name = "wrfull_create_en"
+    },
+    [CLEANUNIQUE_DATA_EN_ORDER] = {
+        .StartBit = CLEANUNIQUE_DATA_EN_START,
+        .EndBit = CLEANUNIQUE_DATA_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL0,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctr0_mtx,
+        .Name = "cleanunique_data_en"
+    },
+    [LOCK_SHARE_REQ_EN_ORDER] = {
+        .StartBit = LOCK_SHARE_REQ_EN_START,
+        .EndBit = LOCK_SHARE_REQ_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL0,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctr0_mtx,
+        .Name = "lock_share_req_en"
+    },
+    [ATOMIC_MONITOR_EN_ORDER] = {
+        .StartBit = ATOMIC_MONITOR_EN_START,
+        .EndBit = ATOMIC_MONITOR_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL0,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctr0_mtx,
+        .Name = "atomic_monitor_en"
     },
 };
 
@@ -622,13 +909,6 @@ int get_default_cfg(int *arr)
     }
     return 1;
 }
-
-//#else
-//#define PREFETCH_POLICY_MAX 0
-//static cfg_t prefetch_cfg[] = {};
-//static FuncStruct Funcs[] = {};
-
-//#endif
 
 int prefetch_policy_num(void)
 {
