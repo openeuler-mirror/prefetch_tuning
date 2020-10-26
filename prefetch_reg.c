@@ -13,6 +13,7 @@
  * Create: 2020-07-02
  * Author: Liqiang (liqiang9102@gitee)
  *         Liuke (liuke20@gitee)
+ *         Wangwuzhe (wangwuzhe@gitee)
  */
 
 #include <linux/module.h>
@@ -41,6 +42,7 @@ unsigned int read_reg(void *addr, int bitstart, int bitend);
 void write_reg(void *addr, unsigned setval, unsigned bitstart, unsigned bitend);
 
 #define PREFETCH_POLICY_MAX 15
+/* */
 static cfg_t prefetch_cfg[] = {
     [0] = {
         .cpuprefctrl_el1 = 0x112f8127f,
@@ -751,6 +753,136 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &l3t_dauctr0_mtx,
         .Name = "atomic_monitor_en"
     },
+    [PREFETCH_CLR_LEVEL_ORDER] = {
+        .StartBit = PREFETCH_CLR_LEVEL_START,
+        .EndBit = PREFETCH_CLR_LEVEL_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_PREFETCH,
+        .Sup = 255,
+        .Glb = 0,
+        .temp_mtx = &l3t_prefetch_mtx,
+        .Name = "prefetch_clr_level"
+    },
+    [REG_CTRL_SPILLPREFETCH_ORDER] = {
+        .StartBit = REG_CTRL_SPILLPREFETCH_START,
+        .EndBit = REG_CTRL_SPILLPREFETCH_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_spillprefetch"
+    },
+    [REG_CTRL_MPAMEN_ORDER] = {
+        .StartBit = REG_CTRL_MPAMEN_START,
+        .EndBit = REG_CTRL_MPAMEN_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_mpamen"
+    },
+    [REG_CTRL_MPAMQOS_ORDER] = {
+        .StartBit = REG_CTRL_MPAMQOS_START,
+        .EndBit = REG_CTRL_MPAMQOS_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_mpamqos"
+    },
+    [REG_CTRL_POISON_ORDER] = {
+        .StartBit = REG_CTRL_POISON_START,
+        .EndBit = REG_CTRL_POISON_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_poison"
+    },
+    [REG_CTRL_COMPRESS_SPEC_ORDER] = {
+        .StartBit = REG_CTRL_COMPRESS_SPEC_START,
+        .EndBit = REG_CTRL_COMPRESS_SPEC_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_compress_spec"
+    },
+    [REG_CTRL_COMPRESS_ORDER] = {
+        .StartBit = REG_CTRL_COMPRESS_START,
+        .EndBit = REG_CTRL_COMPRESS_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_compress"
+    },
+    [REG_CTRL_DATA_RESIDE_ORDER] = {
+        .StartBit = REG_CTRL_DATA_RESIDE_START,
+        .EndBit = REG_CTRL_DATA_RESIDE_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_data_reside"
+    },
+    [REG_CTRL_WRITEEVICT_DROP_ORDER] = {
+        .StartBit = REG_CTRL_WRITEEVICT_DROP_START,
+        .EndBit = REG_CTRL_WRITEEVICT_DROP_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_writeevict_drop"
+    },
+    [REG_CTRL_EXCL_CLEAR_DIS_ORDER] = {
+        .StartBit = REG_CTRL_EXCL_CLEAR_DIS_START,
+        .EndBit = REG_CTRL_EXCL_CLEAR_DIS_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_excl_clear_dis"
+    },
+    [REG_CTRL_EXCL_EVENTEN_ORDER] = {
+        .StartBit = REG_CTRL_EXCL_EVENTEN_START,
+        .EndBit = REG_CTRL_EXCL_EVENTEN_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_excl_eventen"
+    },
+    [REG_CTRL_ECCEN_ORDER] = {
+        .StartBit = REG_CTRL_ECCEN_START,
+        .EndBit = REG_CTRL_ECCEN_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_eccen"
+    },
+    [REG_CTRL_LINKDOWN_ORDER] = {
+        .StartBit = REG_CTRL_LINKDOWN_START,
+        .EndBit = REG_CTRL_LINKDOWN_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_linkdown"
+    }
 };
 
 void set_prefetch(void* dummy)

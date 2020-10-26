@@ -52,7 +52,7 @@ static ssize_t val_store(struct device* dev,
 static ssize_t val_show(struct device* dev,
                         struct device_attribute* attr, char* buf);
 
-/* Device create */
+/* Create device attribute files */
 static DEVICE_ATTR(read_unique, S_IRUGO|S_IWUSR,
                    read_unique_show, read_unique_store);
 
@@ -242,6 +242,45 @@ static DEVICE_ATTR(lock_share_req_en, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(atomic_monitor_en, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
+static DEVICE_ATTR(prefetch_clr_level, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_spillprefetch, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_mpamen, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_mpamqos, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_poison, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_compress_spec, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_compress, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_data_reside, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_writeevict_drop, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_excl_clear_dis, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_excl_eventen, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_eccen, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_linkdown, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
 static struct attribute *prefetch_attrs[] = {
     &dev_attr_policy.attr,
     &dev_attr_cpumask.attr,
@@ -306,6 +345,19 @@ static struct attribute *prefetch_attrs[] = {
     &dev_attr_cleanunique_data_en.attr,
     &dev_attr_lock_share_req_en.attr,
     &dev_attr_atomic_monitor_en.attr,
+    &dev_attr_prefetch_clr_level.attr,
+    &dev_attr_reg_ctrl_spillprefetch.attr,
+    &dev_attr_reg_ctrl_mpamen.attr,
+    &dev_attr_reg_ctrl_mpamqos.attr,
+    &dev_attr_reg_ctrl_poison.attr,
+    &dev_attr_reg_ctrl_compress_spec.attr,
+    &dev_attr_reg_ctrl_compress.attr,
+    &dev_attr_reg_ctrl_data_reside.attr,
+    &dev_attr_reg_ctrl_writeevict_drop.attr,
+    &dev_attr_reg_ctrl_excl_clear_dis.attr,
+    &dev_attr_reg_ctrl_excl_eventen.attr,
+    &dev_attr_reg_ctrl_eccen.attr,
+    &dev_attr_reg_ctrl_linkdown.attr,
     NULL,
 };
 
