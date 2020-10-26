@@ -813,16 +813,6 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &hha_ctrl_mtx,
         .Name = "reg_ctrl_compress_spec"
     },
-    [REG_CTRL_COMPRESS_ORDER] = {
-        .StartBit = REG_CTRL_COMPRESS_START,
-        .EndBit = REG_CTRL_COMPRESS_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_ctrl_mtx,
-        .Name = "reg_ctrl_compress"
-    },
     [REG_CTRL_DATA_RESIDE_ORDER] = {
         .StartBit = REG_CTRL_DATA_RESIDE_START,
         .EndBit = REG_CTRL_DATA_RESIDE_END,
@@ -872,16 +862,6 @@ static FuncStruct Funcs[] = {
         .Glb = 0,
         .temp_mtx = &hha_ctrl_mtx,
         .Name = "reg_ctrl_eccen"
-    },
-    [REG_CTRL_LINKDOWN_ORDER] = {
-        .StartBit = REG_CTRL_LINKDOWN_START,
-        .EndBit = REG_CTRL_LINKDOWN_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_ctrl_mtx,
-        .Name = "reg_ctrl_linkdown"
     }
 };
 

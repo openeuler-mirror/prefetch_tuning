@@ -260,9 +260,6 @@ static DEVICE_ATTR(reg_ctrl_poison, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(reg_ctrl_compress_spec, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
-static DEVICE_ATTR(reg_ctrl_compress, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
 static DEVICE_ATTR(reg_ctrl_data_reside, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
@@ -276,9 +273,6 @@ static DEVICE_ATTR(reg_ctrl_excl_eventen, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
 static DEVICE_ATTR(reg_ctrl_eccen, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(reg_ctrl_linkdown, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
 static struct attribute *prefetch_attrs[] = {
@@ -351,13 +345,11 @@ static struct attribute *prefetch_attrs[] = {
     &dev_attr_reg_ctrl_mpamqos.attr,
     &dev_attr_reg_ctrl_poison.attr,
     &dev_attr_reg_ctrl_compress_spec.attr,
-    &dev_attr_reg_ctrl_compress.attr,
     &dev_attr_reg_ctrl_data_reside.attr,
     &dev_attr_reg_ctrl_writeevict_drop.attr,
     &dev_attr_reg_ctrl_excl_clear_dis.attr,
     &dev_attr_reg_ctrl_excl_eventen.attr,
     &dev_attr_reg_ctrl_eccen.attr,
-    &dev_attr_reg_ctrl_linkdown.attr,
     NULL,
 };
 
