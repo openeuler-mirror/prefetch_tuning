@@ -12,6 +12,14 @@
 # * for more details.
 # Create: 2020-07-21
 # Author: Liuke (liuke20@gitee)
+#         Wang Wuzhe (wangwuzhe@gitee)
+
+echo "L3T_PREFETCH: prefetch_clr_level set test, (exp:0~255)"
+for i in {0..255}
+do
+    echo $i > /sys/class/misc/prefetch/prefetch_clr_level
+    cat /sys/class/misc/prefetch/prefetch_clr_level | grep register\(1\)
+done
 
 echo "L3T_PREFETCH: prefetch_overide_level set test, (exp:0~15)"
 for i in {0..15}

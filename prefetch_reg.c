@@ -13,6 +13,7 @@
  * Create: 2020-07-02
  * Author: Liqiang (liqiang9102@gitee)
  *         Liuke (liuke20@gitee)
+ *         Wangwuzhe (wangwuzhe@gitee)
  */
 
 #include <linux/module.h>
@@ -31,16 +32,21 @@ static DEFINE_MUTEX(l3t_dctrl_mtx);
 static DEFINE_MUTEX(l3t_dauctrl_mtx);
 static DEFINE_MUTEX(l3t_dauctr0_mtx);
 static DEFINE_MUTEX(l3t_prefetch_mtx);
+static DEFINE_MUTEX(l3t_pnumconf1_mtx);
 static DEFINE_MUTEX(l3t_sctrl_mtx);
 static DEFINE_MUTEX(hha_ctrl_mtx);
+static DEFINE_MUTEX(hha_ccctrl_mtx);
 static DEFINE_MUTEX(hha_dirctrl_mtx);
 static DEFINE_MUTEX(hha_funcdis_mtx);
+static DEFINE_MUTEX(hha_ddrlevel_mtx);
 static DEFINE_MUTEX(com_msd1ctrl_mtx);
+static DEFINE_MUTEX(mn_dctrl_mtx);
 
 unsigned int read_reg(void *addr, int bitstart, int bitend);
 void write_reg(void *addr, unsigned setval, unsigned bitstart, unsigned bitend);
 
 #define PREFETCH_POLICY_MAX 15
+/* */
 static cfg_t prefetch_cfg[] = {
     [0] = {
         .cpuprefctrl_el1 = 0x112f8127f,
@@ -140,6 +146,7 @@ static cfg_t prefetch_cfg[] = {
     },
 };
 
+/* locate register bits */
 static FuncStruct Funcs[] = {
     [IOCAPACITY_LIMIT_ORDER] = {
         .StartBit = IOCAPACITY_LIMIT_START,
@@ -282,8 +289,8 @@ static FuncStruct Funcs[] = {
         .Name = "rdmerge_upgrade_en"
     },
     [DDR_COMPRESS_OPT_EN_ORDER] = {
-        .StartBit = PRIME_DROP_MASK_START,
-        .EndBit = PRIME_DROP_MASK_END,
+        .StartBit = DDR_COMPRESS_OPT_EN_START,
+        .EndBit = DDR_COMPRESS_OPT_EN_END,
         .Base = TB_L3T0_BASE,
         .Offset = L3T_DYNAMIC_AUCTRL0,
         .Sup = 1,
@@ -509,7 +516,7 @@ static FuncStruct Funcs[] = {
         .Sup = 1,
         .Glb = 0,
         .temp_mtx = &l3t_sctrl_mtx,
-        .Name = "arb_flush_shut_en_n"
+        .Name = "arb_flush_shut_en"
     },
     [PGNT_ARB_EXAT_SHUT_EN_ORDER] = {
         .StartBit = PGNT_ARB_EXAT_SHUT_EN_START,
@@ -519,7 +526,7 @@ static FuncStruct Funcs[] = {
         .Sup = 1,
         .Glb = 0,
         .temp_mtx = &l3t_sctrl_mtx,
-        .Name = "pgnt_arb_exat_shut_en_n"
+        .Name = "pgnt_arb_exat_shut_en"
     },
     [FAST_EXTER_SHUT_EN_ORDER] = {
         .StartBit = FAST_EXTER_SHUT_EN_START,
@@ -751,6 +758,816 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &l3t_dauctr0_mtx,
         .Name = "atomic_monitor_en"
     },
+    [PREFETCH_CLR_LEVEL_ORDER] = {
+        .StartBit = PREFETCH_CLR_LEVEL_START,
+        .EndBit = PREFETCH_CLR_LEVEL_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_PREFETCH,
+        .Sup = 255,
+        .Glb = 0,
+        .temp_mtx = &l3t_prefetch_mtx,
+        .Name = "prefetch_clr_level"
+    },
+    [REG_CTRL_SPILLPREFETCH_ORDER] = {
+        .StartBit = REG_CTRL_SPILLPREFETCH_START,
+        .EndBit = REG_CTRL_SPILLPREFETCH_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_spillprefetch"
+    },
+    [REG_CTRL_MPAMEN_ORDER] = {
+        .StartBit = REG_CTRL_MPAMEN_START,
+        .EndBit = REG_CTRL_MPAMEN_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_mpamen"
+    },
+    [REG_CTRL_MPAMQOS_ORDER] = {
+        .StartBit = REG_CTRL_MPAMQOS_START,
+        .EndBit = REG_CTRL_MPAMQOS_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_mpamqos"
+    },
+    [REG_CTRL_POISON_ORDER] = {
+        .StartBit = REG_CTRL_POISON_START,
+        .EndBit = REG_CTRL_POISON_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_poison"
+    },
+    [REG_CTRL_COMPRESS_SPEC_ORDER] = {
+        .StartBit = REG_CTRL_COMPRESS_SPEC_START,
+        .EndBit = REG_CTRL_COMPRESS_SPEC_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_compress_spec"
+    },
+    [REG_CTRL_DATA_RESIDE_ORDER] = {
+        .StartBit = REG_CTRL_DATA_RESIDE_START,
+        .EndBit = REG_CTRL_DATA_RESIDE_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_data_reside"
+    },
+    [REG_CTRL_WRITEEVICT_DROP_ORDER] = {
+        .StartBit = REG_CTRL_WRITEEVICT_DROP_START,
+        .EndBit = REG_CTRL_WRITEEVICT_DROP_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_writeevict_drop"
+    },
+    [REG_CTRL_EXCL_CLEAR_DIS_ORDER] = {
+        .StartBit = REG_CTRL_EXCL_CLEAR_DIS_START,
+        .EndBit = REG_CTRL_EXCL_CLEAR_DIS_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_excl_clear_dis"
+    },
+    [REG_CTRL_EXCL_EVENTEN_ORDER] = {
+        .StartBit = REG_CTRL_EXCL_EVENTEN_START,
+        .EndBit = REG_CTRL_EXCL_EVENTEN_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_excl_eventen"
+    },
+    [REG_CTRL_ECCEN_ORDER] = {
+        .StartBit = REG_CTRL_ECCEN_START,
+        .EndBit = REG_CTRL_ECCEN_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ctrl_mtx,
+        .Name = "reg_ctrl_eccen"
+    },
+    [SEQUENCE_SHAPE_EN_ORDER] = {
+        .StartBit = SEQUENCE_SHAPE_EN_START,
+        .EndBit = SEQUENCE_SHAPE_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "sequence_shape_en"
+    },
+    [MPAM_PORTION_EN_ORDER] = {
+        .StartBit = MPAM_PORTION_EN_START,
+        .EndBit = MPAM_PORTION_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "mpam_portion_en"
+    },
+    [MPAM_CAPACITY_EN_ORDER] = {
+        .StartBit = MPAM_CAPACITY_EN_START,
+        .EndBit = MPAM_CAPACITY_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "mpam_capacity_en"
+    },
+    [ECCCHK_EN_ORDER] = {
+        .StartBit = ECCCHK_EN_START,
+        .EndBit = ECCCHK_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "eccchk_en"
+    },
+    [REFILL_1024_RELAX_EN_ORDER] = {
+        .StartBit = REFILL_1024_RELAX_EN_START,
+        .EndBit = REFILL_1024_RELAX_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "refill_1024_relax_en"
+    },
+    [LOOKUP_THR_EN_ORDER] = {
+        .StartBit = LOOKUP_THR_EN_START,
+        .EndBit = LOOKUP_THR_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "lookup_thr_en"
+    },
+    [SNPUNIQUE_STASH_EN_ORDER] = {
+        .StartBit = SNPUNIQUE_STASH_EN_START,
+        .EndBit = SNPUNIQUE_STASH_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "snpunique_stash_en"
+    },
+    [PRIME_TIMEOUT_MASK_EN_ORDER] = {
+        .StartBit = PRIME_TIMEOUT_MASK_EN_START,
+        .EndBit = PRIME_TIMEOUT_MASK_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "prime_timeout_mask_en"
+    },
+    [PRIME_SLEEP_MASK_EN_ORDER] = {
+        .StartBit = PRIME_SLEEP_MASK_EN_START,
+        .EndBit = PRIME_SLEEP_MASK_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "prime_sleep_mask_en"
+    },
+    [PRIME_EXTEND_MASK_EN_ORDER] = {
+        .StartBit = PRIME_EXTEND_MASK_EN_START,
+        .EndBit = PRIME_EXTEND_MASK_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "prime_extend_mask_en"
+    },
+    [FORCE_INTL_ALLOCATE_FAIL_ORDER] = {
+        .StartBit = FORCE_INTL_ALLOCATE_FAIL_START,
+        .EndBit = FORCE_INTL_ALLOCATE_FAIL_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "force_intl_allocate_fail"
+    },
+    [CPU_WRITE_UNIQUE_STREAM_EN_ORDER] = {
+        .StartBit = CPU_WRITE_UNIQUE_STREAM_EN_START,
+        .EndBit = CPU_WRITE_UNIQUE_STREAM_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "cpu_write_unique_stream_en"
+    },
+    [CPU_VIC_LQOS_EN_ORDER] = {
+        .StartBit = CPU_VIC_LQOS_EN_START,
+        .EndBit = CPU_VIC_LQOS_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "cpu_vic_lqos_en"
+    },
+    [PRIME_EXCL_MASK_EN_ORDER] = {
+        .StartBit = PRIME_EXCL_MASK_EN_START,
+        .EndBit = PRIME_EXCL_MASK_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "prime_excl_mask_en"
+    },
+    [PRIME_HOME_MASK_EN_ORDER] = {
+        .StartBit = PRIME_HOME_MASK_EN_START,
+        .EndBit = PRIME_HOME_MASK_EN_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "prime_home_mask_en"
+    },
+    [BANKINTLV_MODE_ORDER] = {
+        .StartBit = BANKINTLV_MODE_START,
+        .EndBit = BANKINTLV_MODE_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_DYNAMIC_AUCTRL1,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &l3t_dauctrl_mtx,
+        .Name = "bankintlv_mode"
+    },
+    [PIME_TIMEOUT_NUM_ORDER] = {
+        .StartBit = PIME_TIMEOUT_NUM_START,
+        .EndBit = PIME_TIMEOUT_NUM_END,
+        .Base = TB_L3T0_BASE,
+        .Offset = L3T_PRIME_NUM_CONFIG1,
+        .Sup = 65535,
+        .Glb = 0,
+        .temp_mtx = &l3t_pnumconf1_mtx,
+        .Name = "pime_timeout_num"
+    },
+    [DVMSNP_OUTSTANDING_ORDER] = {
+        .StartBit = DVMSNP_OUTSTANDING_START,
+        .EndBit = DVMSNP_OUTSTANDING_END,
+        .Base = TB_MN_BASE,
+        .Offset = MN_DYNAMIC_CTRL,
+        .Sup = 5,
+        .Glb = 0,
+        .temp_mtx = &mn_dctrl_mtx,
+        .Name = "dvmsnp_outstanding"
+    },
+    [DVMREQ_OUTSTANDING_ORDER] = {
+        .StartBit = DVMREQ_OUTSTANDING_START,
+        .EndBit = DVMREQ_OUTSTANDING_END,
+        .Base = TB_MN_BASE,
+        .Offset = MN_DYNAMIC_CTRL,
+        .Sup = 31,
+        .Glb = 0,
+        .temp_mtx = &mn_dctrl_mtx,
+        .Name = "dvmreq_outstanding"
+    },
+    [DVMSNP_PERF_EN_ORDER] = {
+        .StartBit = DVMSNP_PERF_EN_START,
+        .EndBit = DVMSNP_PERF_EN_END,
+        .Base = TB_MN_BASE,
+        .Offset = MN_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &mn_dctrl_mtx,
+        .Name = "dvmsnp_perf_en"
+    },
+    [DVMREQ_PERF_EN_ORDER] = {
+        .StartBit = DVMREQ_PERF_EN_START,
+        .EndBit = DVMREQ_PERF_EN_END,
+        .Base = TB_MN_BASE,
+        .Offset = MN_DYNAMIC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &mn_dctrl_mtx,
+        .Name = "dvmreq_perf_en"
+    },
+    [REG_READONCESNP_DIS_ORDER] = {
+        .StartBit = REG_READONCESNP_DIS_START,
+        .EndBit = REG_READONCESNP_DIS_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_readoncesnp_dis"
+    },
+    [REG_CC_EXTER_STASH_ORDER] = {
+        .StartBit = REG_CC_EXTER_STASH_START,
+        .EndBit = REG_CC_EXTER_STASH_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_exter_stash"
+    },
+    [REG_CC_WRITEBACKI_SPILL_FULL_ORDER] = {
+        .StartBit = REG_CC_WRITEBACKI_SPILL_FULL_START,
+        .EndBit = REG_CC_WRITEBACKI_SPILL_FULL_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_writebacki_spill_full"
+    },
+    [REG_CC_WRITEEVICTI_SPILL_FULL_ORDER] = {
+        .StartBit = REG_CC_WRITEEVICTI_SPILL_FULL_START,
+        .EndBit = REG_CC_WRITEEVICTI_SPILL_FULL_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_writeevicti_spill_full"
+    },
+    [REG_CC_STASHONCE_FULL_ORDER] = {
+        .StartBit = REG_CC_STASHONCE_FULL_START,
+        .EndBit = REG_CC_STASHONCE_FULL_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_stashonce_full"
+    },
+    [REG_CC_ATOMICSTASHL2_ORDER] = {
+        .StartBit = REG_CC_ATOMICSTASHL2_START,
+        .EndBit = REG_CC_ATOMICSTASHL2_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_atomicstashl2"
+    },
+    [REG_CC_ATOMICSTASHL3_ORDER] = {
+        .StartBit = REG_CC_ATOMICSTASHL3_START,
+        .EndBit = REG_CC_ATOMICSTASHL3_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_atomicstashl3"
+    },
+    [REG_CC_ATOMICSTASHCLR_ORDER] = {
+        .StartBit = REG_CC_ATOMICSTASHCLR_START,
+        .EndBit = REG_CC_ATOMICSTASHCLR_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_atomicstashclr"
+    },
+    [REG_CC_CMO_SNPME_ORDER] = {
+        .StartBit = REG_CC_CMO_SNPME_START,
+        .EndBit = REG_CC_CMO_SNPME_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_cmo_snpme"
+    },
+    [REG_CC_MAKEE_CHANGE_ORDER] = {
+        .StartBit = REG_CC_MAKEE_CHANGE_START,
+        .EndBit = REG_CC_MAKEE_CHANGE_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_makee_change"
+    },
+    [REG_CC_IOC_HITSCA_DIS_ORDER] = {
+        .StartBit = REG_CC_IOC_HITSCA_DIS_START,
+        .EndBit = REG_CC_IOC_HITSCA_DIS_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_ioc_hitsca_dis"
+    },
+    [REG_CC_PASSDIRTY_ORDER] = {
+        .StartBit = REG_CC_PASSDIRTY_START,
+        .EndBit = REG_CC_PASSDIRTY_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_passdirty"
+    },
+    [REG_CC_SNPDROP_ORDER] = {
+        .StartBit = REG_CC_SNPDROP_START,
+        .EndBit = REG_CC_SNPDROP_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_snpdrop"
+    },
+    [REG_CC_SPILL_ORDER] = {
+        .StartBit = REG_CC_SPILL_START,
+        .EndBit = REG_CC_SPILL_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_CC_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_ccctrl_mtx,
+        .Name = "reg_cc_spill"
+    },
+    [REG_PRECISIONSNP_DIS_ORDER] = {
+        .StartBit = REG_PRECISIONSNP_DIS_START,
+        .EndBit = REG_PRECISIONSNP_DIS_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_precisionsnp_dis"
+    },
+    [REG_NOTONLY_EXCL_ORDER] = {
+        .StartBit = REG_NOTONLY_EXCL_START,
+        .EndBit = REG_NOTONLY_EXCL_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_notonly_excl"
+    },
+    [REG_BUFFER_SHARE_DIS_ORDER] = {
+        .StartBit = REG_BUFFER_SHARE_DIS_START,
+        .EndBit = REG_BUFFER_SHARE_DIS_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_buffer_share_dis"
+    },
+    [REG_MISS_ALLINDEX_ORDER] = {
+        .StartBit = REG_MISS_ALLINDEX_START,
+        .EndBit = REG_MISS_ALLINDEX_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_miss_allindex"
+    },
+    [REG_MISS_CBACKTH_ORDER] = {
+        .StartBit = REG_MISS_CBACKTH_START,
+        .EndBit = REG_MISS_CBACKTH_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_miss_cbackth"
+    },
+    [REG_MISS_NORMALTH_ORDER] = {
+        .StartBit = REG_MISS_NORMALTH_START,
+        .EndBit = REG_MISS_NORMALTH_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_miss_normalth"
+    },
+    [REG_MISS_TOSDIR_ORDER] = {
+        .StartBit = REG_MISS_TOSDIR_START,
+        .EndBit = REG_MISS_TOSDIR_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_miss_tosdir"
+    },
+    [REG_STREAM_FILTER_ORDER] = {
+        .StartBit = REG_STREAM_FILTER_START,
+        .EndBit = REG_STREAM_FILTER_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_stream_filter"
+    },
+    [REG_ENTRY_EXCEPT_ORDER] = {
+        .StartBit = REG_ENTRY_EXCEPT_START,
+        .EndBit = REG_ENTRY_EXCEPT_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_entry_except"
+    },
+    [REG_EDIR_FILTER_ORDER] = {
+        .StartBit = REG_EDIR_FILTER_START,
+        .EndBit = REG_EDIR_FILTER_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_edir_filter"
+    },
+    [REG_EDIR_EN_ORDER] = {
+        .StartBit = REG_EDIR_EN_START,
+        .EndBit = REG_EDIR_EN_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_edir_en"
+    },
+    [REG_DIR_INDEXHASH_ORDER] = {
+        .StartBit = REG_DIR_INDEXHASH_START,
+        .EndBit = REG_DIR_INDEXHASH_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_dir_indexhash"
+    },
+    [REG_DIR_PRECISION_ORDER] = {
+        .StartBit = REG_DIR_PRECISION_START,
+        .EndBit = REG_DIR_PRECISION_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_dir_precision"
+    },
+    [REG_DIR_SHARE_MODE_ORDER] = {
+        .StartBit = REG_DIR_SHARE_MODE_START,
+        .EndBit = REG_DIR_SHARE_MODE_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_dir_share_mode"
+    },
+    [REG_DIR_MCA_MODE_ORDER] = {
+        .StartBit = REG_DIR_MCA_MODE_START,
+        .EndBit = REG_DIR_MCA_MODE_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DIR_CTRL,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_dirctrl_mtx,
+        .Name = "reg_dir_mca_mode"
+    },
+    [STRICT_ORDER_ORDER] = {
+        .StartBit = STRICT_ORDER_START,
+        .EndBit = STRICT_ORDER_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "strict_order"
+    },
+    [EVICT_GREEN_ORDER] = {
+        .StartBit = EVICT_GREEN_START,
+        .EndBit = EVICT_GREEN_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "evict_green"
+    },
+    [BLOCK_RETRY_ORDER] = {
+        .StartBit = BLOCK_RETRY_START,
+        .EndBit = BLOCK_RETRY_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "block_retry"
+    },
+    [BUFFER_PRIO_ORDER] = {
+        .StartBit = BUFFER_PRIO_START,
+        .EndBit = BUFFER_PRIO_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "buffer_prio"
+    },
+    [HALF_WR_RDDDR_DELAY_ORDER] = {
+        .StartBit = HALF_WR_RDDDR_DELAY_START,
+        .EndBit = HALF_WR_RDDDR_DELAY_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "half_wr_rdddr_delay"
+    },
+    [WBACK_CNFL_RDHALF_ORDER] = {
+        .StartBit = WBACK_CNFL_RDHALF_START,
+        .EndBit = WBACK_CNFL_RDHALF_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "wback_cnfl_rdhalf"
+    },
+    [REG_FUNCDIS_PENDPRECISION_ORDER] = {
+        .StartBit = REG_FUNCDIS_PENDPRECISION_START,
+        .EndBit = REG_FUNCDIS_PENDPRECISION_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "reg_funcdis_pendprecision"
+    },
+    [REG_FUNCDIS_PENDPRECISION_ORDER] = {
+        .StartBit = REG_FUNCDIS_COMBRDDDR_START,
+        .EndBit = REG_FUNCDIS_COMBRDDDR_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "reg_funcdis_combrdddr"
+    },
+    [REG_FUNDIS_SCRAMBLE_ORDER] = {
+        .StartBit = REG_FUNDIS_SCRAMBLE_START,
+        .EndBit = REG_FUNDIS_SCRAMBLE_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "reg_funcdis_scramble"
+    },
+    [REG_FUNCDIS_STASHIDPG_ORDER] = {
+        .StartBit = REG_FUNCDIS_STASHIDPG_START,
+        .EndBit = REG_FUNCDIS_STASHIDPG_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "reg_funcdis_stashidpg"
+    },
+    [REG_FUNCDIS_RDATATIME_ORDER] = {
+        .StartBit = REG_FUNCDIS_RDATATIME_START,
+        .EndBit = REG_FUNCDIS_RDATATIME_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "reg_funcdis_rdatatime"
+    },
+    [REG_FUNCDIS_DMCUTL_ORDER] = {
+        .StartBit = REG_FUNCDIS_DMCUTL_START,
+        .EndBit = REG_FUNCDIS_DMCUTL_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "reg_funcdis_dmcutl"
+    },
+    [REG_FUNCDIS_CANCELEXCEPT_ORDER] = {
+        .StartBit = REG_FUNCDIS_CANCELEXCEPT_START,
+        .EndBit = REG_FUNCDIS_CANCELEXCEPT_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "reg_funcdis_cancelexcept"
+    },
+    [REG_FUNCDIS_CCIXCBUPDATE_ORDER] = {
+        .StartBit = REG_FUNCDIS_CCIXCBUPDATE_START,
+        .EndBit = REG_FUNCDIS_CCIXCBUPDATE_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "reg_funcdis_ccixcbupdate"
+    },
+    [REG_FUNCDIS_UPDATEOPEN_ORDER] = {
+        .StartBit = REG_FUNCDIS_UPDATEOPEN_ORDER,
+        .EndBit = REG_FUNCDIS_UPDATEOPEN_ORDER,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "reg_funcdis_updateopen"
+    },
+    [REG_FUNCDIS_DDRWRAP_ORDER] = {
+        .StartBit = REG_FUNCDIS_DDRWRAP_ORDER,
+        .EndBit = REG_FUNCDIS_DDRWRAP_ORDER,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_FUNC_DIS,
+        .Sup = 1,
+        .Glb = 0,
+        .temp_mtx = &hha_funcdis_mtx,
+        .Name = "reg_funcdis_ddrwrap"
+    },
+    [REG_PREFETCHTGT_OUTSTANDING_ORDER] = {
+        .StartBit = REG_PREFETCHTGT_OUTSTANDING_START,
+        .EndBit = REG_PREFETCHTGT_OUTSTANDING_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DDR_LEVEL,
+        .Sup = 127,
+        .Glb = 0,
+        .temp_mtx = &hha_ddrlevel_mtx,
+        .Name = "reg_prefetchtgt_outstanding"
+    },
+    [REG_PREFETCHTGT_LEVEL_ORDER] = {
+        .StartBit = REG_PREFETCHTGT_LEVEL_START,
+        .EndBit = REG_PREFETCHTGT_LEVEL_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DDR_LEVEL,
+        .Sup = 127,
+        .Glb = 0,
+        .temp_mtx = &hha_ddrlevel_mtx,
+        .Name = "reg_prefetchtgt_level"
+    },
+    [REG_SPEC_RD_LEVEL_ORDER] = {
+        .StartBit = REG_SPEC_RD_LEVEL_START,
+        .EndBit = REG_SPEC_RD_LEVEL_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DDR_LEVEL,
+        .Sup = 127,
+        .Glb = 0,
+        .temp_mtx = &hha_ddrlevel_mtx,
+        .Name = "reg_spec_rd_level"
+    },
+    [REG_DROP_LEVEL_ORDER] = {
+        .StartBit = REG_DROP_LEVEL_START,
+        .EndBit = REG_DROP_LEVEL_END,
+        .Base = TB_HHA0_BASE,
+        .Offset = HHA_DDR_LEVEL,
+        .Sup = 127,
+        .Glb = 0,
+        .temp_mtx = &hha_ddrlevel_mtx,
+        .Name = "reg_drop_level"
+    }
 };
 
 void set_prefetch(void* dummy)

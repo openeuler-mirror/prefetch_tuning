@@ -52,7 +52,7 @@ static ssize_t val_store(struct device* dev,
 static ssize_t val_show(struct device* dev,
                         struct device_attribute* attr, char* buf);
 
-/* Device create */
+/* Create device attribute files */
 static DEVICE_ATTR(read_unique, S_IRUGO|S_IWUSR,
                    read_unique_show, read_unique_store);
 
@@ -170,10 +170,10 @@ static DEVICE_ATTR(lower_power_en, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(dataclean_shut_en, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
-static DEVICE_ATTR(arb_flush_shut_en_n, S_IRUGO|S_IWUSR,
+static DEVICE_ATTR(arb_flush_shut_en, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
-static DEVICE_ATTR(pgnt_arb_exat_shut_en_n, S_IRUGO|S_IWUSR,
+static DEVICE_ATTR(pgnt_arb_exat_shut_en, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
 static DEVICE_ATTR(fast_exter_shut_en, S_IRUGO|S_IWUSR,
@@ -242,6 +242,249 @@ static DEVICE_ATTR(lock_share_req_en, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(atomic_monitor_en, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
+static DEVICE_ATTR(prefetch_clr_level, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_spillprefetch, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_mpamen, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_mpamqos, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_poison, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_compress_spec, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_data_reside, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_writeevict_drop, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_excl_clear_dis, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_excl_eventen, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_ctrl_eccen, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(sequence_shape_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(mpam_portion_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(mpam_capacity_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(eccchk_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(refill_1024_relax_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(lookup_thr_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(snpunique_stash_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(prime_timeout_mask_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(prime_sleep_mask_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(prime_extend_mask_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(force_intl_allocate_fail, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(cpu_write_unique_stream_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(cpu_vic_lqos_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(prime_excl_mask_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(prime_home_mask_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(bankintlv_mode, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(pime_timeout_num, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(dvmsnp_outstanding, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(dvmreq_outstanding, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(dvmsnp_perf_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(dvmreq_perf_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_readoncesnp_dis, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_exter_stash, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_writebacki_spill_full, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_writeevicti_spill_full, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_stashonce_full, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_atomicstashl2, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_atomicstashl3, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_atomicstashclr, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_cmo_snpme, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_makee_change, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_ioc_hitsca_dis, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_passdirty, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_snpdrop, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_cc_spill, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_precisionsnp_dis, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_notonly_excl, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_buffer_share_dis, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_miss_allindex, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_miss_cbackth, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_miss_normalth, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_miss_tosdir, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_stream_filter, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_entry_except, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_edir_filter, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_edir_en, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_dir_indexhash, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_dir_precision, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_dir_share_mode, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_dir_mca_mode, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(strict_order, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(evict_green, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(block_retry, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(buffer_prio, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(half_wr_rdddr_delay, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(wback_cnfl_rdhalf, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_funcdis_pendprecision, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_funcdis_combrdddr, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_funcdis_scramble, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_funcdis_stashidpg, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_funcdis_rdatatime, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_funcdis_dmcutl, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_funcdis_cancelexcept, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_funcdis_ccixcbupdate, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_funcdis_updateopen, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_funcdis_ddrwrap, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_prefetchtgt_outstanding, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_prefetchtgt_level, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_spec_rd_level, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
+static DEVICE_ATTR(reg_drop_level, S_IRUGO|S_IWUSR,
+                   val_show, val_store);
+
 static struct attribute *prefetch_attrs[] = {
     &dev_attr_policy.attr,
     &dev_attr_cpumask.attr,
@@ -282,8 +525,8 @@ static struct attribute *prefetch_attrs[] = {
     &dev_attr_req_conflict_en.attr,
     &dev_attr_lower_power_en.attr,
     &dev_attr_dataclean_shut_en.attr,
-    &dev_attr_arb_flush_shut_en_n.attr,
-    &dev_attr_pgnt_arb_exat_shut_en_n.attr,
+    &dev_attr_arb_flush_shut_en.attr,
+    &dev_attr_pgnt_arb_exat_shut_en.attr,
     &dev_attr_fast_exter_shut_en.attr,
     &dev_attr_fast_data_shut_en.attr,
     &dev_attr_pend_data_shut_en.attr,
@@ -306,6 +549,87 @@ static struct attribute *prefetch_attrs[] = {
     &dev_attr_cleanunique_data_en.attr,
     &dev_attr_lock_share_req_en.attr,
     &dev_attr_atomic_monitor_en.attr,
+    &dev_attr_prefetch_clr_level.attr,
+    &dev_attr_reg_ctrl_spillprefetch.attr,
+    &dev_attr_reg_ctrl_mpamen.attr,
+    &dev_attr_reg_ctrl_mpamqos.attr,
+    &dev_attr_reg_ctrl_poison.attr,
+    &dev_attr_reg_ctrl_compress_spec.attr,
+    &dev_attr_reg_ctrl_data_reside.attr,
+    &dev_attr_reg_ctrl_writeevict_drop.attr,
+    &dev_attr_reg_ctrl_excl_clear_dis.attr,
+    &dev_attr_reg_ctrl_excl_eventen.attr,
+    &dev_attr_reg_ctrl_eccen.attr,
+    &dev_attr_sequence_shape_en.attr,
+    &dev_attr_mpam_portion_en.attr,
+    &dev_attr_mpam_capacity_en.attr,
+    &dev_attr_eccchk_en.attr,
+    &dev_attr_refill_1024_relax_en.attr,
+    &dev_attr_lookup_thr_en.attr,
+    &dev_attr_snpunique_stash_en.attr,
+    &dev_attr_prime_timeout_mask_en.attr,
+    &dev_attr_prime_sleep_mask_en.attr,
+    &dev_attr_prime_extend_mask_en.attr,
+    &dev_attr_force_intl_allocate_fail.attr,
+    &dev_attr_cpu_write_unique_stream_en.attr,
+    &dev_attr_cpu_vic_lqos_en.attr,
+    &dev_attr_prime_excl_mask_en.attr,
+    &dev_attr_prime_home_mask_en.attr,
+    &dev_attr_bankintlv_mode.attr,
+    &dev_attr_pime_timeout_num.attr,
+    &dev_attr_dvmsnp_outstanding.attr,
+    &dev_attr_dvmreq_outstanding.attr,
+    &dev_attr_dvmsnp_perf_en.attr,
+    &dev_attr_dvmreq_perf_en.attr,
+    &dev_attr_reg_readoncesnp_dis.attr,
+    &dev_attr_reg_cc_exter_stash.attr,
+    &dev_attr_reg_cc_writebacki_spill_full.attr,
+    &dev_attr_reg_cc_writeevicti_spill_full.attr,
+    &dev_attr_reg_cc_stashonce_full.attr,
+    &dev_attr_reg_cc_atomicstashl2.attr,
+    &dev_attr_reg_cc_atomicstashl3.attr,
+    &dev_attr_reg_cc_atomicstashclr.attr,
+    &dev_attr_reg_cc_cmo_snpme.attr,
+    &dev_attr_reg_cc_makee_change.attr,
+    &dev_attr_reg_cc_ioc_hitsca_dis.attr,
+    &dev_attr_reg_cc_passdirty.attr,
+    &dev_attr_reg_cc_snpdrop.attr,
+    &dev_attr_reg_cc_spill.attr,
+    &dev_attr_reg_precisionsnp_dis.attr,
+    &dev_attr_reg_notonly_excl.attr,
+    &dev_attr_reg_buffer_share_dis.attr,
+    &dev_attr_reg_miss_allindex.attr,
+    &dev_attr_reg_miss_cbackth.attr,
+    &dev_attr_reg_miss_normalth.attr,
+    &dev_attr_reg_miss_tosdir.attr,
+    &dev_attr_reg_stream_filter.attr,
+    &dev_attr_reg_entry_except.attr,
+    &dev_attr_reg_edir_filter.attr,
+    &dev_attr_reg_edir_en.attr,
+    &dev_attr_reg_dir_indexhash.attr,
+    &dev_attr_reg_dir_precision.attr,
+    &dev_attr_reg_dir_share_mode.attr,
+    &dev_attr_reg_dir_mca_mode.attr,
+    &dev_attr_strict_order.attr,
+    &dev_attr_evict_green.attr,
+    &dev_attr_block_retry.attr,
+    &dev_attr_buffer_prio.attr,
+    &dev_attr_half_wr_rdddr_delay.attr,
+    &dev_attr_wback_cnfl_rdhalf.attr,
+    &dev_attr_reg_funcdis_pendprecision.attr,
+    &dev_attr_reg_funcdis_combrdddr.attr,
+    &dev_attr_reg_funcdis_scramble.attr,
+    &dev_attr_reg_funcdis_stashidpg.attr,
+    &dev_attr_reg_funcdis_rdatatime.attr,
+    &dev_attr_reg_funcdis_dmcutl.attr,
+    &dev_attr_reg_funcdis_cancelexcept.attr,
+    &dev_attr_reg_funcdis_ccixcbupdate.attr,
+    &dev_attr_reg_funcdis_updateopen.attr,
+    &dev_attr_reg_funcdis_ddrwrap.attr,
+    &dev_attr_reg_prefetchtgt_outstanding.attr,
+    &dev_attr_reg_prefetchtgt_level.attr,
+    &dev_attr_reg_spec_rd_level.attr,
+    &dev_attr_reg_drop_level.attr,
     NULL,
 };
 
