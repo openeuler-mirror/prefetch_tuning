@@ -13,119 +13,62 @@
 # Create: 2020-08-06
 # Author: Liuke (liuke20@gitee)
 #         Wang Wuzhe (wangwuzhe@gitee)
+# Description: This file is for testing bits setting and reading of register
+#              HHA_CTRL.
 
-echo "reg_ctrl_spillprefetch set test (exp 0,1) :"
-for i in {0..1}
+register='HHA_CTRL'
+bitname_array=('reg_ctrl_spillprefetch' 'reg_ctrl_mpamen' \
+'reg_ctrl_mpamqos' 'reg_ctrl_poison' 'reg_ctrl_compress_spec' \
+'reg_ctrl_writeevict_drop' 'reg_ctrl_prefetch_drop' 'reg_ctrl_dmcassign' \
+'reg_ctrl_rdatabyp' 'reg_ctrl_excl_clear_dis' 'reg_ctrl_excl_eventen' \
+'reg_ctrl_eccen')
+checkflag=1
+
+for bit in ${bitname_array[*]}
 do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_spillprefetch
-    cat /sys/class/misc/prefetch/reg_ctrl_spillprefetch | grep register\(1\)
+    echo "${register}: ${bit} set test, expected 0~1"
+    for i in {0..1}
+    do 
+        echo $i > /sys/class/misc/prefetch/${bit}
+        cat /sys/class/misc/prefetch/${bit} | grep register\(1\)
+        if [ "register\(1\): ${i}.\n" != "$(cat /sys/class/misc/prefetch/${bit} | grep register\(1\))" ]
+        then
+            checkflag=0
+        fi
+    done
 done
 
-echo "reg_ctrl_mpamen set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_mpamen
-    cat /sys/class/misc/prefetch/reg_ctrl_mpamen | grep register\(1\)
-done
-
-echo "reg_ctrl_mpamqos set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_mpamqos
-    cat /sys/class/misc/prefetch/reg_ctrl_mpamqos | grep register\(1\)
-done
-
-echo "reg_ctrl_poison set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_poison
-    cat /sys/class/misc/prefetch/reg_ctrl_poison | grep register\(1\)
-done
-
-echo "reg_ctrl_compress_spec set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_compress_spec
-    cat /sys/class/misc/prefetch/reg_ctrl_compress_spec | grep register\(1\)
-done
-
-echo "reg_ctrl_data_reside set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_data_reside
-    cat /sys/class/misc/prefetch/reg_ctrl_data_reside | grep register\(1\)
-done
-
-echo "reg_ctrl_writeevict_drop set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_writeevict_drop
-    cat /sys/class/misc/prefetch/reg_ctrl_writeevict_drop | grep register\(1\)
-done
-
-echo "reg_ctrl_prefetch_drop set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_prefetch_drop
-    cat /sys/class/misc/prefetch/reg_ctrl_prefetch_drop | grep register\(1\)
-done
-
-echo "reg_ctrl_dmcassign set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_dmcassign
-    cat /sys/class/misc/prefetch/reg_ctrl_dmcassign | grep register\(1\)
-done
-
-echo "reg_ctrl_rdatabyp set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_rdatabyp
-    cat /sys/class/misc/prefetch/reg_ctrl_rdatabyp | grep register\(1\)
-done
-
-echo "reg_ctrl_excl_clear_dis set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_excl_clear_dis
-    cat /sys/class/misc/prefetch/reg_ctrl_excl_clear_dis | grep register\(1\)
-done
-
-echo "reg_ctrl_excl_eventen set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_excl_eventen
-    cat /sys/class/misc/prefetch/reg_ctrl_excl_eventen | grep register\(1\)
-done
-
-echo "reg_ctrl_eccen set test (exp 0,1) :"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_ctrl_eccen
-    cat /sys/class/misc/prefetch/reg_ctrl_eccen | grep register\(1\)
-done
-
-echo "set reg_ctrl_prefetch_drop to be 0: exp(0, 1, 1)"
-echo 0 > /sys/class/misc/prefetch/reg_ctrl_prefetch_drop
-cat /sys/class/misc/prefetch/reg_ctrl_prefetch_drop | grep register\(1\)
-cat /sys/class/misc/prefetch/reg_ctrl_dmcassign | grep register\(1\)
-cat /sys/class/misc/prefetch/reg_ctrl_rdatabyp | grep register\(1\)
-
-echo "set reg_ctrl_dmcassign to be 0: exp(0, 0, 1)"
-echo 0 > /sys/class/misc/prefetch/reg_ctrl_dmcassign
-cat /sys/class/misc/prefetch/reg_ctrl_prefetch_drop | grep register\(1\)
-cat /sys/class/misc/prefetch/reg_ctrl_dmcassign | grep register\(1\)
-cat /sys/class/misc/prefetch/reg_ctrl_rdatabyp | grep register\(1\)
-
-echo "set reg_ctrl_rdatabyp to be 0: exp(0, 0, 0)"
-echo 0 > /sys/class/misc/prefetch/reg_ctrl_rdatabyp
-cat /sys/class/misc/prefetch/reg_ctrl_prefetch_drop | grep register\(1\)
-cat /sys/class/misc/prefetch/reg_ctrl_dmcassign | grep register\(1\)
-cat /sys/class/misc/prefetch/reg_ctrl_rdatabyp | grep register\(1\)
-
-echo "reg_dir_replace_alg set text (exp 0, 1)"
-for i in {0..1}
-do
-    echo $i > /sys/class/misc/prefetch/reg_dir_replace_alg
-    cat /sys/class/misc/prefetch/reg_dir_replace_alg | grep register\(1\)
-done
+count=0
+bit_arr=(
+1 1 1 1 1 \
+1 1 1 1 1 \
+1 1 1 1 1 \
+1 1 1 1 1 \
+1 1 1 1 1 \
+1 1 1 1 1 \
+1 1 1 1 1 \
+1 1\
+)
+echo "------------${register} combined test--------------"
+for a0 in {0..1}; do bit_arr[0]=$a0
+for a1 in {0..1}; do bit_arr[1]=$a1
+for a2 in {0..1}; do bit_arr[2]=$a2
+for a3 in {0..1}; do bit_arr[3]=$a3
+for a4 in {0..1}; do bit_arr[4]=$a4
+for a5 in {0..1}; do bit_arr[5]=$a5
+for a6 in {0..1}; do bit_arr[6]=$a6
+for a7 in {0..1}; do bit_arr[7]=$a7
+for a8 in {0..1}; do bit_arr[8]=$a8
+for a9 in {0..1}; do bit_arr[9]=$a9
+for a10 in {0..1}; do bit_arr[10]=$a10
+for a11 in {0..1}; do bit_arr[11]=$a11
+    echo "Current register bits value combination: ${count} ------------"
+    for i in {0..11}
+    do
+        echo ${bit_arr[$i]} > /sys/class/misc/prefetch/${bitname_array[$i]}
+        echo "${bitname_array[$i]}: $(cat /sys/class/misc/prefetch/${bitname_array[$i]} | grep register\(1\))"
+    done
+    let count++
+done;done;done;done;done;done;done
+done;done;done;done;done
+echo "----------${register} combined test done------------"

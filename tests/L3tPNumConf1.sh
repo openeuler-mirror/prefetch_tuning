@@ -15,8 +15,8 @@
 # Description: This file is for testing bits setting and reading of register
 #              L3T_PRIME_NUM_CONFIG1.
 
-echo "L3T_PRIME_NUM_CONFIG1: pime_timeout_num set test, (exp: 60000 ~ 65535)"
-for i in {60000..65535}
+echo "L3T_PRIME_NUM_CONFIG1: pime_timeout_num set test, (exp: 0 ~ 65535)"
+for i in {0..65535}
 do
     echo $i > /sys/class/misc/prefetch/pime_timeout_num
     cat /sys/class/misc/prefetch/pime_timeout_num | grep register\(1\)
