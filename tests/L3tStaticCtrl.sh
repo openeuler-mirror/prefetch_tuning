@@ -10,17 +10,18 @@
 # * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 # * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # * for more details.
-# Create: 2020-10-30
-# Author: Wang Wuzhe (wangwuzhe@gitee)
+# Create: 2020-11-04
+# Author: Liuke (liuke20@gitee)
+#         Wang Wuzhe (wangwuzhe@gitee)
 # Description: This file is for testing bits setting and reading of register
-#              HHA_CC_CTRL.
+#              L3T_STATIC_CTRL.
 
-register='HHA_CC_CTRL'
-bitname_array=('reg_readoncesnp_dis' 'reg_cc_exter_stash' \
-'reg_cc_writebacki_spill_full' 'reg_cc_writeevicti_spill_full' 'reg_cc_stashonce_full' \
-'reg_cc_atomicstashl2' 'reg_cc_atomicstashl3' 'reg_cc_atomicstashclr' \
-'reg_cc_cmo_snpme' 'reg_cc_makee_change' 'reg_cc_ioc_hitsca_dis' \
-'reg_cc_passdirty' 'reg_cc_snpdrop' 'reg_cc_spill')
+register='L3T_STATIC_CTRL'
+bitname_array=('reg_nosnp_atomic_bypass_en' 'reg_ro_alloc_shut_en' \
+'reg_wrfull_hit_shut_en' 'req_conflict_en' 'lower_power_en' \
+'dataclean_shut_en' 'arb_flush_shut_en' 'pgnt_arb_exat_shut_en' \
+'fast_exter_shut_en' 'fast_data_shut_en' 'pend_data_shut_en' \
+'ramfwd_shut_en')
 checkflag=1
 
 for bit in ${bitname_array[*]}
@@ -61,15 +62,14 @@ for a8 in {0..1}; do bit_arr[8]=$a8
 for a9 in {0..1}; do bit_arr[9]=$a9
 for a10 in {0..1}; do bit_arr[10]=$a10
 for a11 in {0..1}; do bit_arr[11]=$a11
-for a12 in {0..1}; do bit_arr[12]=$a12
-for a13 in {0..1}; do bit_arr[13]=$a13
     echo "Current register bits value combination: ${count} ------------"
-    for i in {0..13}
+    for i in {0..11}
     do
         echo ${bit_arr[$i]} > /sys/class/misc/prefetch/${bitname_array[$i]}
         echo "${bitname_array[$i]}: $(cat /sys/class/misc/prefetch/${bitname_array[$i]} | grep register\(1\))"
     done
     let count++
 done;done;done;done;done;done;done
-done;done;done;done;done;done;done
+done;done;done;done;done
 echo "----------${register} combined test done------------"
+

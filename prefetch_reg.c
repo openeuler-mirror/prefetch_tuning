@@ -29,7 +29,7 @@
 #include "prefetch_mod.h"
 
 static DEFINE_MUTEX(l3t_dctrl_mtx);
-static DEFINE_MUTEX(l3t_dauctrl_mtx);
+static DEFINE_MUTEX(l3t_dauctrl1_mtx);
 static DEFINE_MUTEX(l3t_dauctr0_mtx);
 static DEFINE_MUTEX(l3t_prefetch_mtx);
 static DEFINE_MUTEX(l3t_pnumconf1_mtx);
@@ -148,15 +148,15 @@ static cfg_t prefetch_cfg[] = {
 
 /* locate register bits */
 static FuncStruct Funcs[] = {
-    [IOCAPACITY_LIMIT_ORDER] = {
-        .StartBit = IOCAPACITY_LIMIT_START,
-        .EndBit = IOCAPACITY_LIMIT_END,
+    [IOCAPACITY_LIMIT_EN_ORDER] = {
+        .StartBit = IOCAPACITY_LIMIT_EN_START,
+        .EndBit = IOCAPACITY_LIMIT_EN_END,
         .Base = TB_L3T0_BASE,
         .Offset = L3T_DYNAMIC_CTRL,
         .Sup = 1,
         .Glb = 0,
         .temp_mtx = &l3t_dctrl_mtx,
-        .Name = "iocapacity_limit"
+        .Name = "iocapacity_limit_en"
     },
     [TAG_REP_ALG_ORDER] = {
         .StartBit = TAG_REP_ALG_START,
@@ -168,65 +168,55 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &l3t_dctrl_mtx,
         .Name = "tag_rep_alg"
     },
-    [SQMERGE_ORDER] = {
-        .StartBit = SQMERGE_START,
-        .EndBit = SQMERGE_END,
+    [SQMERGE_EN_ORDER] = {
+        .StartBit = SQMERGE_EN_START,
+        .EndBit = SQMERGE_EN_END,
         .Base = TB_L3T0_BASE,
         .Offset = L3T_DYNAMIC_CTRL,
         .Sup = 1,
         .Glb = 0,
         .temp_mtx = &l3t_dctrl_mtx,
-        .Name = "sqmerge"
+        .Name = "sqmerge_en"
     },
-    [RDMERGE_ORDER] = {
-        .StartBit = RDMERGE_START,
-        .EndBit = RDMERGE_END,
+    [PREFETCH_DROP_HHA_EN_ORDER] = {
+        .StartBit = PREFETCH_DROP_HHA_EN_START,
+        .EndBit = PREFETCH_DROP_HHA_EN_END,
         .Base = TB_L3T0_BASE,
         .Offset = L3T_DYNAMIC_CTRL,
         .Sup = 1,
         .Glb = 0,
         .temp_mtx = &l3t_dctrl_mtx,
-        .Name = "rdmerge"
+        .Name = "prefetch_drop_hha_en"
     },
-    [PREFETCH_DROP_HHA_ORDER] = {
-        .StartBit = PREFETCH_DROP_HHA_START,
-        .EndBit = PREFETCH_DROP_HHA_END,
-        .Base = TB_L3T0_BASE,
-        .Offset = L3T_DYNAMIC_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &l3t_dctrl_mtx,
-        .Name = "prefetch_drop_hha"
-    },
-    [RAMSWAP_ORDER] = {
-        .StartBit = RAMSWAP_START,
-        .EndBit = RAMSWAP_END,
+    [RAMSWAP_FULL_SHUT_EN_ORDER] = {
+        .StartBit = RAMSWAP_FULL_SHUT_EN_START,
+        .EndBit = RAMSWAP_FULL_SHUT_EN_END,
         .Base = TB_L3T0_BASE,
         .Offset = L3T_STATIC_CTRL,
         .Sup = 1,
         .Glb = 0,
         .temp_mtx = &l3t_sctrl_mtx,
-        .Name = "ramswap"
+        .Name = "ramswap_full_shut_en"
     },
-    [PRIME_DROP_MASK_ORDER] = {
-        .StartBit = PRIME_DROP_MASK_START,
-        .EndBit = PRIME_DROP_MASK_END,
+    [PRIME_DROP_MASK_EN_ORDER] = {
+        .StartBit = PRIME_DROP_MASK_EN_START,
+        .EndBit = PRIME_DROP_MASK_EN_END,
         .Base = TB_L3T0_BASE,
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
-        .Name = "prime_drop_mask"
+        .temp_mtx = &l3t_dauctrl1_mtx,
+        .Name = "prime_drop_mask_en"
     },
-    [SEQUENCE_OPT_ORDER] = {
-        .StartBit = SEQUENCE_OPT_START,
-        .EndBit = SEQUENCE_OPT_END,
+    [SEQUENCE_OPT_EN_ORDER] = {
+        .StartBit = SEQUENCE_OPT_EN_START,
+        .EndBit = SEQUENCE_OPT_EN_END,
         .Base = TB_L3T0_BASE,
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
-        .Name = "sequence_opt"
+        .temp_mtx = &l3t_dauctrl1_mtx,
+        .Name = "sequence_opt_en"
     },
     [PREFETCH_ULT_DDR_ORDER] = {
         .StartBit = PREFETCH_ULT_DDR_START,
@@ -325,7 +315,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "cpu_pf_lqos_en"
     },
     [REFILLSIZE_COM_ADA_EN_ORDER] = {
@@ -335,7 +325,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "refillsize_com_ada_en"
     },
     [REFILLSIZE_PRE_ADA_EN_ORDER] = {
@@ -345,7 +335,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "refillsize_pre_ada_en"
     },
     [PREFETCH_OVERIDE_LEVEL_ORDER] = {
@@ -568,26 +558,6 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &l3t_sctrl_mtx,
         .Name = "ramfwd_shut_en"
     },
-    [RAMTHR_MERGE_EN_ORDER] = {
-        .StartBit = RAMTHR_MERGE_EN_START,
-        .EndBit = RAMTHR_MERGE_EN_END,
-        .Base = TB_L3T0_BASE,
-        .Offset = L3T_STATIC_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &l3t_sctrl_mtx,
-        .Name = "ramthr_merge_en"
-    },
-    [EXT_EN_ORDER] = {
-        .StartBit = EXT_EN_START,
-        .EndBit = EXT_EN_END,
-        .Base = TB_L3T0_BASE,
-        .Offset = L3T_STATIC_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &l3t_sctrl_mtx,
-        .Name = "ext_en"
-    },
     [READS_UPGRADE_EN_ORDER] = {
         .StartBit = READS_UPGRADE_EN_START,
         .EndBit = READS_UPGRADE_EN_END,
@@ -710,13 +680,13 @@ static FuncStruct Funcs[] = {
     },
     [RDNOSNP_NCA_SHUT_EN_ORDER] = {
         .StartBit = RDNOSNP_NCA_SHUT_EN_START,
-        .EndBit = FORCE_CQ_CLK_EN_END,
+        .EndBit = RDNOSNP_NCA_SHUT_EN_END,
         .Base = TB_L3T0_BASE,
-        .Offset = L3T_DYNAMIC_CTRL,
+        .Offset = L3T_DYNAMIC_AUCTRL0,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dctrl_mtx,
-        .Name = "force_cq_clk_en"
+        .temp_mtx = &l3t_dauctr0_mtx,
+        .Name = "rdnosnp_nca_shut_en"
     },
     [WRFULL_CREATE_EN_ORDER] = {
         .StartBit = WRFULL_CREATE_EN_START,
@@ -818,16 +788,6 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &hha_ctrl_mtx,
         .Name = "reg_ctrl_compress_spec"
     },
-    [REG_CTRL_DATA_RESIDE_ORDER] = {
-        .StartBit = REG_CTRL_DATA_RESIDE_START,
-        .EndBit = REG_CTRL_DATA_RESIDE_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_ctrl_mtx,
-        .Name = "reg_ctrl_data_reside"
-    },
     [REG_CTRL_WRITEEVICT_DROP_ORDER] = {
         .StartBit = REG_CTRL_WRITEEVICT_DROP_START,
         .EndBit = REG_CTRL_WRITEEVICT_DROP_END,
@@ -875,7 +835,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "sequence_shape_en"
     },
     [MPAM_PORTION_EN_ORDER] = {
@@ -885,7 +845,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "mpam_portion_en"
     },
     [MPAM_CAPACITY_EN_ORDER] = {
@@ -895,7 +855,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "mpam_capacity_en"
     },
     [ECCCHK_EN_ORDER] = {
@@ -905,7 +865,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "eccchk_en"
     },
     [REFILL_1024_RELAX_EN_ORDER] = {
@@ -915,7 +875,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "refill_1024_relax_en"
     },
     [LOOKUP_THR_EN_ORDER] = {
@@ -925,7 +885,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "lookup_thr_en"
     },
     [SNPUNIQUE_STASH_EN_ORDER] = {
@@ -935,7 +895,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "snpunique_stash_en"
     },
     [PRIME_TIMEOUT_MASK_EN_ORDER] = {
@@ -945,7 +905,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "prime_timeout_mask_en"
     },
     [PRIME_SLEEP_MASK_EN_ORDER] = {
@@ -955,7 +915,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "prime_sleep_mask_en"
     },
     [PRIME_EXTEND_MASK_EN_ORDER] = {
@@ -965,7 +925,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "prime_extend_mask_en"
     },
     [FORCE_INTL_ALLOCATE_FAIL_ORDER] = {
@@ -975,7 +935,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "force_intl_allocate_fail"
     },
     [CPU_WRITE_UNIQUE_STREAM_EN_ORDER] = {
@@ -985,7 +945,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "cpu_write_unique_stream_en"
     },
     [CPU_VIC_LQOS_EN_ORDER] = {
@@ -995,7 +955,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "cpu_vic_lqos_en"
     },
     [PRIME_EXCL_MASK_EN_ORDER] = {
@@ -1005,7 +965,7 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "prime_excl_mask_en"
     },
     [PRIME_HOME_MASK_EN_ORDER] = {
@@ -1015,18 +975,8 @@ static FuncStruct Funcs[] = {
         .Offset = L3T_DYNAMIC_AUCTRL1,
         .Sup = 1,
         .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
+        .temp_mtx = &l3t_dauctrl1_mtx,
         .Name = "prime_home_mask_en"
-    },
-    [BANKINTLV_MODE_ORDER] = {
-        .StartBit = BANKINTLV_MODE_START,
-        .EndBit = BANKINTLV_MODE_END,
-        .Base = TB_L3T0_BASE,
-        .Offset = L3T_DYNAMIC_AUCTRL1,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &l3t_dauctrl_mtx,
-        .Name = "bankintlv_mode"
     },
     [PIME_TIMEOUT_NUM_ORDER] = {
         .StartBit = PIME_TIMEOUT_NUM_START,
@@ -1043,7 +993,7 @@ static FuncStruct Funcs[] = {
         .EndBit = DVMSNP_OUTSTANDING_END,
         .Base = TB_MN_BASE,
         .Offset = MN_DYNAMIC_CTRL,
-        .Sup = 5,
+        .Sup = 15,
         .Glb = 0,
         .temp_mtx = &mn_dctrl_mtx,
         .Name = "dvmsnp_outstanding"
@@ -1288,16 +1238,6 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &hha_dirctrl_mtx,
         .Name = "reg_miss_tosdir"
     },
-    [REG_STREAM_FILTER_ORDER] = {
-        .StartBit = REG_STREAM_FILTER_START,
-        .EndBit = REG_STREAM_FILTER_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_DIR_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_dirctrl_mtx,
-        .Name = "reg_stream_filter"
-    },
     [REG_ENTRY_EXCEPT_ORDER] = {
         .StartBit = REG_ENTRY_EXCEPT_START,
         .EndBit = REG_ENTRY_EXCEPT_END,
@@ -1308,36 +1248,6 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &hha_dirctrl_mtx,
         .Name = "reg_entry_except"
     },
-    [REG_EDIR_FILTER_ORDER] = {
-        .StartBit = REG_EDIR_FILTER_START,
-        .EndBit = REG_EDIR_FILTER_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_DIR_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_dirctrl_mtx,
-        .Name = "reg_edir_filter"
-    },
-    [REG_EDIR_EN_ORDER] = {
-        .StartBit = REG_EDIR_EN_START,
-        .EndBit = REG_EDIR_EN_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_DIR_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_dirctrl_mtx,
-        .Name = "reg_edir_en"
-    },
-    [REG_DIR_INDEXHASH_ORDER] = {
-        .StartBit = REG_DIR_INDEXHASH_START,
-        .EndBit = REG_DIR_INDEXHASH_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_DIR_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_dirctrl_mtx,
-        .Name = "reg_dir_indexhash"
-    },
     [REG_DIR_PRECISION_ORDER] = {
         .StartBit = REG_DIR_PRECISION_START,
         .EndBit = REG_DIR_PRECISION_END,
@@ -1347,26 +1257,6 @@ static FuncStruct Funcs[] = {
         .Glb = 0,
         .temp_mtx = &hha_dirctrl_mtx,
         .Name = "reg_dir_precision"
-    },
-    [REG_DIR_SHARE_MODE_ORDER] = {
-        .StartBit = REG_DIR_SHARE_MODE_START,
-        .EndBit = REG_DIR_SHARE_MODE_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_DIR_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_dirctrl_mtx,
-        .Name = "reg_dir_share_mode"
-    },
-    [REG_DIR_MCA_MODE_ORDER] = {
-        .StartBit = REG_DIR_MCA_MODE_START,
-        .EndBit = REG_DIR_MCA_MODE_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_DIR_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_dirctrl_mtx,
-        .Name = "reg_dir_mca_mode"
     },
     [STRICT_ORDER_ORDER] = {
         .StartBit = STRICT_ORDER_START,
@@ -1438,7 +1328,7 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &hha_funcdis_mtx,
         .Name = "reg_funcdis_pendprecision"
     },
-    [REG_FUNCDIS_PENDPRECISION_ORDER] = {
+    [REG_FUNCDIS_COMBRDDDR_ORDER] = {
         .StartBit = REG_FUNCDIS_COMBRDDDR_START,
         .EndBit = REG_FUNCDIS_COMBRDDDR_END,
         .Base = TB_HHA0_BASE,
@@ -1509,24 +1399,14 @@ static FuncStruct Funcs[] = {
         .Name = "reg_funcdis_ccixcbupdate"
     },
     [REG_FUNCDIS_UPDATEOPEN_ORDER] = {
-        .StartBit = REG_FUNCDIS_UPDATEOPEN_ORDER,
-        .EndBit = REG_FUNCDIS_UPDATEOPEN_ORDER,
+        .StartBit = REG_FUNCDIS_UPDATEOPEN_START,
+        .EndBit = REG_FUNCDIS_UPDATEOPEN_END,
         .Base = TB_HHA0_BASE,
         .Offset = HHA_FUNC_DIS,
         .Sup = 1,
         .Glb = 0,
         .temp_mtx = &hha_funcdis_mtx,
         .Name = "reg_funcdis_updateopen"
-    },
-    [REG_FUNCDIS_DDRWRAP_ORDER] = {
-        .StartBit = REG_FUNCDIS_DDRWRAP_ORDER,
-        .EndBit = REG_FUNCDIS_DDRWRAP_ORDER,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_FUNC_DIS,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_funcdis_mtx,
-        .Name = "reg_funcdis_ddrwrap"
     },
     [REG_PREFETCHTGT_OUTSTANDING_ORDER] = {
         .StartBit = REG_PREFETCHTGT_OUTSTANDING_START,

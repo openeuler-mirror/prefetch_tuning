@@ -42,3 +42,29 @@ do
     echo $i > /sys/class/misc/prefetch/dvmreq_perf_en
     cat /sys/class/misc/prefetch/dvmreq_perf_en | grep register\(1\)
 done
+
+echo "MN_DYNAMIC_CTRL combined test"
+for i in {0..15}
+do
+    echo "-------------------dvmsnp_outstanding"
+    echo $i > /sys/class/misc/prefetch/dvmsnp_outstanding
+    cat /sys/class/misc/prefetch/dvmsnp_outstanding | grep register\(1\)
+    for j in {0..31}
+    do
+        echo "----------dvmreq_outstanding"
+        echo $j > /sys/class/misc/prefetch/dvmreq_outstanding
+        cat /sys/class/misc/prefetch/dvmreq_outstanding | grep register\(1\)
+        for k in {0..1}
+        do
+            echo "------dvmsnp_perf_en"
+            echo $k > /sys/class/misc/prefetch/dvmsnp_perf_en
+            cat /sys/class/misc/prefetch/dvmsnp_perf_en | grep register\(1\)
+            for n in {0..1}
+            do
+                echo "----dvmreq_perf_en"
+                echo $n > /sys/class/misc/prefetch/dvmreq_perf_en
+                cat /sys/class/misc/prefetch/dvmreq_perf_en | grep register\(1\)
+            done
+        done
+    done
+done
