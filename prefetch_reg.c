@@ -1188,16 +1188,6 @@ static FuncStruct Funcs[] = {
         .temp_mtx = &hha_dirctrl_mtx,
         .Name = "reg_notonly_excl"
     },
-    [REG_BUFFER_SHARE_DIS_ORDER] = {
-        .StartBit = REG_BUFFER_SHARE_DIS_START,
-        .EndBit = REG_BUFFER_SHARE_DIS_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_DIR_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_dirctrl_mtx,
-        .Name = "reg_buffer_share_dis"
-    },
     [REG_MISS_ALLINDEX_ORDER] = {
         .StartBit = REG_MISS_ALLINDEX_START,
         .EndBit = REG_MISS_ALLINDEX_END,
@@ -1247,16 +1237,6 @@ static FuncStruct Funcs[] = {
         .Glb = 0,
         .temp_mtx = &hha_dirctrl_mtx,
         .Name = "reg_entry_except"
-    },
-    [REG_DIR_PRECISION_ORDER] = {
-        .StartBit = REG_DIR_PRECISION_START,
-        .EndBit = REG_DIR_PRECISION_END,
-        .Base = TB_HHA0_BASE,
-        .Offset = HHA_DIR_CTRL,
-        .Sup = 1,
-        .Glb = 0,
-        .temp_mtx = &hha_dirctrl_mtx,
-        .Name = "reg_dir_precision"
     },
     [STRICT_ORDER_ORDER] = {
         .StartBit = STRICT_ORDER_START,

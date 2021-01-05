@@ -353,9 +353,6 @@ static DEVICE_ATTR(reg_precisionsnp_dis, S_IRUGO|S_IWUSR,
 static DEVICE_ATTR(reg_notonly_excl, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
-static DEVICE_ATTR(reg_buffer_share_dis, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
 static DEVICE_ATTR(reg_miss_allindex, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
@@ -369,9 +366,6 @@ static DEVICE_ATTR(reg_miss_tosdir, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
 static DEVICE_ATTR(reg_entry_except, S_IRUGO|S_IWUSR,
-                   val_show, val_store);
-
-static DEVICE_ATTR(reg_dir_precision, S_IRUGO|S_IWUSR,
                    val_show, val_store);
 
 static DEVICE_ATTR(reg_dir_replace_alg, S_IRUGO|S_IWUSR,
@@ -559,13 +553,11 @@ static struct attribute *prefetch_attrs[] = {
     &dev_attr_reg_cc_spill.attr,
     &dev_attr_reg_precisionsnp_dis.attr,
     &dev_attr_reg_notonly_excl.attr,
-    &dev_attr_reg_buffer_share_dis.attr,
     &dev_attr_reg_miss_allindex.attr,
     &dev_attr_reg_miss_cbackth.attr,
     &dev_attr_reg_miss_normalth.attr,
     &dev_attr_reg_miss_tosdir.attr,
     &dev_attr_reg_entry_except.attr,
-    &dev_attr_reg_dir_precision.attr,
     &dev_attr_strict_order.attr,
     &dev_attr_evict_green.attr,
     &dev_attr_block_retry.attr,
