@@ -6,7 +6,7 @@ This kernel module is based on Kunpeng chip and provides some performance-sensit
 
 ## Environment
 
-- Hardware: Based on HiSilicon Kunpeng 920
+- Hardware: Based on HiSilicon Kunpeng 920 (only support 920a for now)
 
 - OS: EulerOS or openEuler
 
