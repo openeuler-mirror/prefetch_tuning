@@ -5,7 +5,7 @@
 
 ## 运行环境
 
-- 硬件： 基于Kunpeng 920芯片
+- 硬件： 基于Kunpeng 920芯片（目前仅支持920a）
 
 - 操作系统： openEuler 或 EulerOS
 
