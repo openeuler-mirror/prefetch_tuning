@@ -45,7 +45,7 @@ static DEFINE_MUTEX(mn_dctrl_mtx);
 unsigned int read_reg(void *addr, int bitstart, int bitend);
 void write_reg(void *addr, unsigned setval, unsigned bitstart, unsigned bitend);
 
-#define PREFETCH_POLICY_MAX 15
+#define PREFETCH_POLICY_MAX 16
 /* */
 static cfg_t prefetch_cfg[] = {
     [0] = {
@@ -143,6 +143,12 @@ static cfg_t prefetch_cfg[] = {
         .adps_lld_ddr_el1 = 0x6554a000,
         .adpp_l1v_mop_el1 = 0x29154332a840,
         .adps_lld_l3_el1 = 0x65965700
+    },
+    [16] = {
+        .cpuprefctrl_el1 = 0x112f84240,
+        .adps_lld_ddr_el1 = 0x7df7ae00,
+        .adpp_l1v_mop_el1 = 0x7f154332a840,
+        .adps_lld_l3_el1 = 0x7df3ce80
     },
 };
 
