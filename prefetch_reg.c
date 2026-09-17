@@ -1644,7 +1644,7 @@ inline unsigned int read_reg(void* addr, int bitstart, int bitend)
         return val;
 
     bitwide = bitend - bitstart + 1;
-    bitmask = (bitwide == 32) ? 0xffffffff : (1 << bitwide) - 1;
+    bitmask = (bitwide == 32) ? 0xffffffff : (1U << bitwide) - 1;
     return (val >> bitstart) & bitmask;
 }
 
@@ -1668,7 +1668,7 @@ inline void write_reg(void* addr, unsigned setval, unsigned bitstart, unsigned b
         return;
     val = *(volatile unsigned int *)(addr);
     bitwide = bitend - bitstart + 1;
-    bitmask = (bitwide == 32) ? 0xffffffff : (1 << bitwide) - 1;
+    bitmask = (bitwide == 32) ? 0xffffffff : (1U << bitwide) - 1;
     setval &= bitmask;
     val &= ~(bitmask << bitstart);
     setval <<= bitstart;
