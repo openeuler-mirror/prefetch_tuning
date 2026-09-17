@@ -631,7 +631,7 @@ static ssize_t read_unique_show(struct device* dev,
 
     for_each_cpu(cpu, prefetch_cpumask_value) {
         int *ptr = per_cpu_ptr(cur, cpu);
-        count += scnprintf(buf + count, PAGE_SIZE, "cpu(%d): %d.\n",
+        count += scnprintf(buf + count, PAGE_SIZE - count, "cpu(%d): %d.\n",
                            cpu, (ptr == NULL) ? -1 : *ptr);
     }
     mutex_unlock(&prefetch_mtx);
@@ -677,7 +677,7 @@ static ssize_t prefetch_show(struct device* dev,
             if (!memcmp(prefetch_policy(policy), this_cfg, sizeof(cfg_t)))
                 break;
         }
-        count += scnprintf(buf + count, PAGE_SIZE, "cpu(%d): %d\n", cpu, policy);
+        count += scnprintf(buf + count, PAGE_SIZE - count, "cpu(%d): %d\n", cpu, policy);
     }
     mutex_unlock(&prefetch_mtx);
 
@@ -748,7 +748,7 @@ static ssize_t show_all(struct device* dev, struct device_attribute* attr, char*
 
             (*temp).Address = base_remap + (*temp).Offset;
             val = get_val(*temp);
-            count += scnprintf(buf + count, PAGE_SIZE, "register(%d): %d.\n",
+            count += scnprintf(buf + count, PAGE_SIZE - count, "register(%d): %d.\n",
                                reg++, val);
             iounmap((volatile void*)base_remap);
         }
