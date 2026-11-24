@@ -6,7 +6,7 @@ This kernel module is based on Kunpeng chip and provides some performance-sensit
 
 ## Environment
 
-- Hardware: Based on HiSilicon Kunpeng 920 (only support 920a for now)
+- Hardware: Based on HiSilicon Kunpeng 920 (only support 920a for now). For Kunpeng 950, use the prefetch_tuning_950 module (see the end of this document).
 
 - OS: EulerOS or openEuler
 
@@ -184,3 +184,52 @@ rmmod prefetch_tuning
 ```
 
 The uninstall operation can reset the parameter configurations to default.
+
+## prefetch_tuning_950 Module (Kunpeng 950)
+
+For the Kunpeng 950 chip, this repository also provides a separate module `prefetch_tuning_950.ko`, which reads/writes bit 0 (the first bit) of the S3_1_c15_c6_4 (CPUPREFCTRL_EL1) register. Bit 0 is the CPU prefetch control bit: 1 disables CPU prefetch and 0 enables it.
+
+This module shares the same device node path with `prefetch_tuning` (`/sys/class/misc/prefetch/`), so **they cannot be loaded at the same time**.
+
+### Build and install
+
+`make clean && make` builds both `prefetch_tuning.ko` and `prefetch_tuning_950.ko`:
+
+```
+make clean && make
+insmod prefetch_tuning_950.ko
+```
+
+To confirm the kernel module is installed successfully:
+
+```
+lsmod | grep prefetch_tuning_950
+```
+
+To uninstall:
+
+```
+rmmod prefetch_tuning_950
+```
+
+### Adjustable Parameters
+
+| Parameter | Meaning | Adjustment Range |
+| --------- | ------- | ---------------- |
+| reg_prefetch_ctl | Bit 0 (the first bit) of the S3_1_c15_c6_4 register. Writing 1 sets bit 0 (disables CPU prefetch); writing 0 clears bit 0 (enables CPU prefetch). | 0, 1 |
+
+Example:
+
+```
+cat /sys/class/misc/prefetch/reg_prefetch_ctl        # read the bit value of each CPU
+echo 1 > /sys/class/misc/prefetch/reg_prefetch_ctl   # set bit 0
+echo 0 > /sys/class/misc/prefetch/reg_prefetch_ctl   # clear bit 0
+```
+
+Note on `cat` output: a sysfs read returns at most one page (PAGE_SIZE, usually 4 KB). One line per CPU exceeds that limit on machines with hundreds of CPUs (with 328 CPUs the output was cut at roughly the 323rd line), so consecutive CPUs holding the same value are merged into one line, e.g. `cpu(0-327): 0.` means bit 0 is 0 on CPU 0 through CPU 327; a single CPU is still reported as `cpu(1): 1.`.
+
+> **Note**: If a setting does not take effect, the BIOS may have enabled LPI (Low Power Idle) mode. Disable that mode so the configuration can take effect. To disable LPI mode on all CPUs:
+
+```
+echo 1 | tee /sys/devices/system/cpu/cpu*/cpuidle/state1/disable > /dev/null
+```

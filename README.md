@@ -5,7 +5,7 @@
 
 ## 运行环境
 
-- 硬件： 基于Kunpeng 920芯片（目前仅支持920a）
+- 硬件： 基于Kunpeng 920芯片（目前仅支持920a）。鲲鹏950芯片请使用 prefetch_tuning_950 模块（见文末）。
 
 - 操作系统： openEuler 或 EulerOS
 
@@ -186,3 +186,52 @@ echo 1 > /sys/class/misc/prefetch/policy
 如手动设定的配置值有误（值不合法，比如越界等），可能导致配置失败，此时可以查看系统日志，确认是否出现改情况。
 
 > 注：某些参数如policy等，获取参数时会列出所有CPU核的配置情况，改配参数时将一并改动所有CPU的配置。
+
+## 鲲鹏950模块 prefetch_tuning_950
+
+针对鲲鹏950芯片，本仓库另提供独立的 `prefetch_tuning_950.ko` 模块，用于读写 S3_1_c15_c6_4（CPUPREFCTRL_EL1）寄存器的首位（bit 0，CPU预取控制位：1 表示关闭 CPU 预取，0 表示开启）。
+
+该模块与 `prefetch_tuning` 的设备节点路径相同（均为 `/sys/class/misc/prefetch/`），**两者不能同时加载**。
+
+### 编译、安装、卸载
+
+`make clean && make` 会同时构建 `prefetch_tuning.ko` 与 `prefetch_tuning_950.ko`：
+
+```
+make clean && make
+insmod prefetch_tuning_950.ko
+```
+
+可以用以下命令确认该内核模块已经插入：
+
+```
+lsmod | grep prefetch_tuning_950
+```
+
+使用以下命令以卸载该内核模块：
+
+```
+rmmod prefetch_tuning_950
+```
+
+### 可调节参数
+
+| 参数名称 | 参数意义 | 可调节范围（可能是0-1值，或者int值）|
+| --------- | ------- | ---------------- |
+| reg_prefetch_ctl | S3_1_c15_c6_4 寄存器首位（bit 0）。设为 1 时首位置 1（关闭 CPU 预取），设为 0 时首位置 0（开启 CPU 预取）。 | 0, 1 |
+
+示例：
+
+```
+cat /sys/class/misc/prefetch/reg_prefetch_ctl        # 查看各 CPU 该位的值
+echo 1 > /sys/class/misc/prefetch/reg_prefetch_ctl   # 首位置 1
+echo 0 > /sys/class/misc/prefetch/reg_prefetch_ctl   # 首位置 0
+```
+
+`cat` 输出格式说明：sysfs 单次读取最多返回一页（PAGE_SIZE，通常 4 KB）。CPU 数量较多时，逐 CPU 一行的输出会超出单页限制而被截断（例如 328 个 CPU 时约在第 323 行处被截断）。因此取值相同且编号连续的 CPU 会合并为一行输出，例如 `cpu(0-327): 0.` 表示 CPU0～CPU327 的 bit 0 均为 0；单个 CPU 仍为 `cpu(1): 1.` 格式。
+
+> **注意**：如果设置未生效，可能是 BIOS 开启了 LPI(Low Power Idle) mode，需要关闭该模式，配置才会生效。关闭所有 CPU LPI mode：
+
+```
+echo 1 | tee /sys/devices/system/cpu/cpu*/cpuidle/state1/disable > /dev/null
+```
